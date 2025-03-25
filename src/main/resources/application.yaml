@@ -1,0 +1,25 @@
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/autoluxe
+    username: postgres
+    password: bestuser
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+logging:
+  level:
+    org:
+      springframework:
+        security: TRACE
+
+app:
+  auth:
+    tokenSecret: "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970"
+    tokenExpirationMsec: 86400000
+    refreshExpirationMsec: 864000000
