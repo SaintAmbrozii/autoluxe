@@ -7,9 +7,9 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class GetUserTokenRequest {
+public class ConfirmBuyRequest {
 
-    private String partner_token;
+    private String token;
 
-    private Long user_id;
+    private String Btoken;
 }

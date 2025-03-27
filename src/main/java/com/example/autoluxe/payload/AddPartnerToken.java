@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class HideAccResponse {
+public class AddPartnerToken {
 
-    private Integer status;
+    private String partner_token;
 }

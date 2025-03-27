@@ -1,4 +1,4 @@
-package com.example.autoluxe.payload;
+package com.example.autoluxe.payload.hideuseracc;
 
 import lombok.*;
 
@@ -11,5 +11,5 @@ public class HideAccRequest {
 
     private String token;
 
-    private String [] epic_ids;
+    private String epc_ids;
 }

@@ -7,7 +7,11 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AddSubUserRequest {
+public class ChangeUserPass {
 
     private String token;
+
+    private String epc_id;
+
+    private String pass;
 }
