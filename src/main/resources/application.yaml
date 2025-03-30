@@ -11,15 +11,22 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
 
 logging:
   level:
     org:
       springframework:
         security: TRACE
+      hibernate:
+        SQL: debug
+
 
 app:
   auth:
     tokenSecret: "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970"
     tokenExpirationMsec: 86400000
     refreshExpirationMsec: 864000000
+
+JWT_ACCESS_COOKIE_NAME: access_token
+JWT_REFRESH_COOKIE_NAME: refresh_token

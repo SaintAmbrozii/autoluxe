@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class Account {
+public class BuyAccountResponse {
 
     private Integer epc_id;
 

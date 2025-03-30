@@ -2,9 +2,11 @@ package com.example.autoluxe.controller;
 
 
 
+import com.example.autoluxe.config.AppProperties;
 import com.example.autoluxe.domain.Role;
 import com.example.autoluxe.domain.Token;
 import com.example.autoluxe.domain.User;
+import com.example.autoluxe.exception.AppException;
 import com.example.autoluxe.payload.ApiResponse;
 import com.example.autoluxe.payload.LoginRequest;
 import com.example.autoluxe.payload.SignUpRequest;
@@ -14,6 +16,9 @@ import com.example.autoluxe.security.TokenProvider;
 import com.example.autoluxe.service.LogoutService;
 import com.example.autoluxe.service.UserService;
 import com.example.autoluxe.service.UserTokenService;
+import com.example.autoluxe.utils.CookieUtil;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,10 +29,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -46,10 +48,12 @@ public class AuthController {
     private final PasswordEncoder encoder;
     private final UserTokenService tokenService;
     private final LogoutService logoutService;
+    private final CookieUtil cookieUtil;
+    private final AppProperties properties;
 
     public AuthController(AuthenticationManager authenticationManager, UserService userService,
                           UserRepo userRepo, TokenProvider tokenProvider, PasswordEncoder encoder,
-                          UserTokenService tokenService, LogoutService logoutService) {
+                          UserTokenService tokenService, LogoutService logoutService, CookieUtil cookieUtil, AppProperties properties) {
         this.authenticationManager = authenticationManager;
         this.userService = userService;
         this.userRepo = userRepo;
@@ -57,12 +61,16 @@ public class AuthController {
         this.encoder = encoder;
         this.tokenService = tokenService;
         this.logoutService = logoutService;
+        this.cookieUtil = cookieUtil;
+        this.properties = properties;
     }
 
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TokenResponse> authenticateUser(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<TokenResponse> authenticateUser(@RequestBody LoginRequest loginRequest,
+                                                          @CookieValue(name = "access_token", required = false) String accessToken,
+                                                          @CookieValue(name = "refresh_token", required = false) String refreshToken) {
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -70,14 +78,20 @@ public class AuthController {
                         loginRequest.getPassword()
                 )
         );
+        HttpHeaders responseHeaders = new HttpHeaders();
+
         final User user = userRepo.findUserByEmail(loginRequest.getEmail()).orElseThrow();
         tokenService.revokeAllUserToken(user);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String accessToken = tokenProvider.createToken(authentication);
-        String refreshToken = tokenProvider.createRefreshToken(authentication);
-        TokenResponse tokenResponse = TokenResponse.builder().accessToken(accessToken).refreshToken(refreshToken).build();
-        tokenService.saveToken(user, refreshToken);
-        return ResponseEntity.ok(tokenResponse);
+        String access = tokenProvider.createToken(authentication);
+        String refresh = tokenProvider.createRefreshToken(authentication);
+        TokenResponse tokenResponse = TokenResponse.builder().accessToken(access).refreshToken(refresh).build();
+        tokenService.saveToken(user, refresh);
+
+        addAccessTokenCookie(responseHeaders, accessToken);
+        addRefreshTokenCookie(responseHeaders, refreshToken);
+
+        return ResponseEntity.ok().headers(responseHeaders).body(tokenResponse);
     }
 
 
@@ -102,6 +116,8 @@ public class AuthController {
                 .fromCurrentContextPath().path("/user/me")
                 .buildAndExpand(userAfterSaving.getId()).toUri();
 
+
+
         return ResponseEntity.created(location)
                 .body(new ApiResponse(true, "User registered successfully!"));
     }
@@ -109,8 +125,13 @@ public class AuthController {
 
 
     @PostMapping("/refresh")
-    public ResponseEntity<TokenResponse> getRefreshToken(@RequestBody String token) {
-        Optional<Token> inDb = tokenService.findByToken(token);
+    public ResponseEntity<TokenResponse> getRefreshToken(@CookieValue(name = "refresh_token", required = true) String refresh) {
+
+        boolean refreshTokenValid = tokenProvider.validateToken(refresh);
+
+        if(!refreshTokenValid)
+            throw new AppException(HttpStatus.BAD_REQUEST, "Refresh token is invalid");
+        Optional<Token> inDb = tokenService.findByToken(refresh);
         Token currentToken = inDb.get();
         if (Date.from(Instant.now()).after(currentToken.getDuration())) {
             tokenService.deleteToken(currentToken.getId());
@@ -118,6 +139,15 @@ public class AuthController {
         String refreshToken = currentToken.getToken();
         TokenResponse response = TokenResponse.builder().refreshToken(refreshToken).accessToken(null).build();
         return ResponseEntity.ok(response);
+    }
+
+
+
+    private void addAccessTokenCookie(HttpHeaders httpHeaders, String token) {
+        httpHeaders.add(HttpHeaders.SET_COOKIE, cookieUtil.createAccessTokenCookie(token, properties.getAuth().getTokenExpirationMsec()).toString());
+    }
+    private void addRefreshTokenCookie(HttpHeaders httpHeaders, String token) {
+        httpHeaders.add(HttpHeaders.SET_COOKIE, cookieUtil.createRefreshTokenCookie(token, properties.getAuth().getRefreshExpirationMsec()).toString());
     }
 
 

@@ -2,22 +2,24 @@ package com.example.autoluxe.service;
 
 
 import com.example.autoluxe.domain.User;
+import com.example.autoluxe.domain.UserAccount;
 import com.example.autoluxe.dto.AdminDto;
 import com.example.autoluxe.dto.UserDto;
 import com.example.autoluxe.exception.NotFoundException;
 import com.example.autoluxe.payload.*;
 import com.example.autoluxe.payload.addsubuser.AddSubUserRequest;
 import com.example.autoluxe.payload.addsubuser.AddSubUserResponse;
+import com.example.autoluxe.payload.confirmbuy.ConfirmBuyRequest;
+import com.example.autoluxe.payload.confirmbuy.ConfirmByResponse;
 import com.example.autoluxe.payload.getbuytoken.GetByTokenRequest;
 import com.example.autoluxe.payload.getbuytoken.GetByTokenResponse;
 import com.example.autoluxe.payload.getuseraccounts.GetUserAccountResponse;
 import com.example.autoluxe.payload.getuseraccounts.GetUserAccounts;
-import com.example.autoluxe.payload.getuseraccounts.UserAccount;
+import com.example.autoluxe.payload.getuseraccounts.UserAccountDto;
 import com.example.autoluxe.payload.getusertoken.GetUserTokenRequest;
 import com.example.autoluxe.payload.getusertoken.GetUserTokenResponse;
 import com.example.autoluxe.payload.hideuseracc.HideAccRequest;
 import com.example.autoluxe.repo.UserRepo;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -37,10 +39,12 @@ public class UserService {
 
     private final UserRepo userRepo;
     private final PasswordEncoder encoder;
+    private final AccountService accountService;
 
-    public UserService(UserRepo userRepo, PasswordEncoder encoder) {
+    public UserService(UserRepo userRepo, PasswordEncoder encoder, AccountService accountService) {
         this.userRepo = userRepo;
         this.encoder = encoder;
+        this.accountService = accountService;
     }
 
 
@@ -73,7 +77,7 @@ public class UserService {
 
         GetUserTokenRequest tokenRequest = GetUserTokenRequest.builder()
                 .user_id(inDB.getId())
-                .partner_token(partner_token).build();
+                .partner_token(user.getPartner_token()).build();
 
         GetUserTokenResponse response = client.
                 post().
@@ -115,13 +119,16 @@ public class UserService {
 
     }
 
-    public ResponseEntity<ApiResponse> hideAccount(Long userId) {
+    public ResponseEntity<ApiResponse> hideAccount(Long userId, Long accountId) {
         User inDB = userRepo.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
+        UserAccount account = accountService.findById(accountId)
+                .orElseThrow(()->new NotFoundException("AccountNotFound"));
+
         RestClient client = RestClient.create();
 
-        String epcId = String.valueOf(inDB.getEpics_ids());
+        String epcId = String.valueOf(account.getEpcId());
 
         HideAccRequest request = HideAccRequest.builder()
                 .token(inDB.getEpic_token())
@@ -133,16 +140,23 @@ public class UserService {
                 body(request).
                 retrieve()
                 .toBodilessEntity();
+
+        account.setHide(true);
+        accountService.save(account);
+
         return ResponseEntity.ok(new ApiResponse(true,"Hide account sucessfully"));
     }
 
-    public ResponseEntity<ApiResponse> changeUserName(Long userId,ChangeUserNameRequest request) {
+    public ResponseEntity<ApiResponse> changeUserName(Long userId,Long accountId, ChangeUserNameRequest request) {
         User inDB = userRepo.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
+        UserAccount account = accountService.findById(accountId)
+                .orElseThrow(()->new NotFoundException("AccountNotFound"));
+
         RestClient client = RestClient.create();
 
-        String epcId = String.valueOf(inDB.getEpics_ids());
+        String epcId = String.valueOf(account.getEpcId());
 
         request = ChangeUserNameRequest.builder()
                 .epc_id(epcId)
@@ -156,16 +170,22 @@ public class UserService {
                 retrieve()
                 .toBodilessEntity();
 
+        account.setName(request.getName());
+        accountService.save(account);
+
         return ResponseEntity.ok(new ApiResponse(true,"ChangeUserName sucessfully"));
     }
 
-    public ResponseEntity<ApiResponse> changeUserLogin(Long userId,ChangeUserLoginRequest request) {
+    public ResponseEntity<ApiResponse> changeUserLogin(Long userId,Long accountId, ChangeUserLoginRequest request) {
         User inDB = userRepo.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
+        UserAccount account = accountService.findById(accountId)
+                .orElseThrow(()->new NotFoundException("AccountNotFound"));
+
         RestClient client = RestClient.create();
 
-        String epcId = String.valueOf(inDB.getEpics_ids());
+        String epcId = String.valueOf(account.getEpcId());
 
         request = ChangeUserLoginRequest.builder()
                 .epc_id(epcId)
@@ -179,16 +199,22 @@ public class UserService {
                 retrieve()
                 .toBodilessEntity();
 
+        account.setADName(request.getLogin());
+        accountService.save(account);
+
         return ResponseEntity.ok(new ApiResponse(true,"ChangeUserLogin sucessfully"));
     }
 
-    public ResponseEntity<ApiResponse> changeUserPass(Long userId,ChangeUserPass request) {
+    public ResponseEntity<ApiResponse> changeUserPass(Long userId,Long accountId, ChangeUserPass request) {
         User inDB = userRepo.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
+        UserAccount account = accountService.findById(accountId)
+                .orElseThrow(()->new NotFoundException("AccountNotFound"));
+
         RestClient client = RestClient.create();
 
-        String epcId = String.valueOf(inDB.getEpics_ids());
+        String epcId = String.valueOf(account.getEpcId());
 
         request = ChangeUserPass.builder()
                 .epc_id(epcId)
@@ -202,22 +228,28 @@ public class UserService {
                 retrieve()
                 .toBodilessEntity();
 
+        account.setPass(request.getPass());
+        accountService.save(account);
+
         return ResponseEntity.ok(new ApiResponse(true,"ChangeUserPass sucessfully"));
     }
 
-    public ResponseEntity<GetByTokenResponse> getByToken (Long userId, GetByTokenRequest request) {
+    public ResponseEntity<GetByTokenResponse> getByToken (Long userId,Long accountId, GetByTokenRequest request) {
 
         User inDB = userRepo.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
+        UserAccount account = accountService.findById(accountId)
+                .orElseThrow(()->new NotFoundException("AccountNotFound"));
+
         RestClient client = RestClient.create();
 
-        String epcId = String.valueOf(inDB.getEpics_ids());
+        Integer epcId = account.getEpcId();
 
         request = GetByTokenRequest.builder()
                 .token(inDB.getEpic_token())
                 .products(request.getProducts())
-                .user_ids(epcId)
+                .user_ids(String.valueOf(epcId))
                 .days(request.getDays()).build();
 
         GetByTokenResponse response = client.
@@ -234,7 +266,7 @@ public class UserService {
     }
 
 
-    public UserDto confirmBuy (Long userId) {
+    public ResponseEntity<ConfirmByResponse> confirmBuy (Long userId) {
 
         User inDB = userRepo.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
@@ -248,24 +280,25 @@ public class UserService {
                 .token(inDB.getEpic_token())
                 .Btoken(Btoken).build();
 
-        Account[] response = client.
+        ConfirmByResponse response = client.
                 post().
                 uri(EPIC_URI + "confirm_buy").
                 body(request).
                 retrieve()
-                .body(new ParameterizedTypeReference<Account[]>() {
-                });
+                .body(ConfirmByResponse.class);
 
-        List<Integer> epcIdList = Arrays.stream(response)
-                .map(Account::getEpc_id).collect(Collectors.toList());
+        List<UserAccount> accounts = response.getByAccountDtoList().stream().map(a-> {
+            UserAccount account = new UserAccount();
+            account.setEpcId(a.getEpc_id());
+            account.setLogin(a.getLogin());
+            account.setPass(a.getPass());
+            return account;
+        }).collect(Collectors.toList());
 
-        List<String> ids = epcIdList.stream().map(Object::toString).collect(Collectors.toList());
+        accountService.accountSaveList(accounts);
 
-        inDB.setEpics_ids(ids);
 
-        User updated = userRepo.save(inDB);
-
-        return UserDto.toDto(updated);
+        return ResponseEntity.ok(response);
     }
 
     public ResponseEntity<GetUserAccountResponse> getUserAccount(Long userId){
@@ -286,10 +319,20 @@ public class UserService {
                 retrieve()
                 .body(GetUserAccountResponse.class);
 
+        List<UserAccount> accounts = response.getAccounts().stream().map(a-> {
+            UserAccount account = new UserAccount();
+            account.setADName(a.getAD_name());
+            account.setHide(a.isHide());
+            account.setRFCExpires(a.getRFC_expires());
+            account.setStatus(a.getStatus());
+            account.setPass(a.getPass());
+            return account;
+        }).collect(Collectors.toList());
 
+        accountService.accountSaveList(accounts);
 
         List<Integer> epcIdList = Arrays.stream(response.getAccounts()
-                .toArray(new UserAccount[0])).map(UserAccount::getId).collect(Collectors.toList());
+                .toArray(new UserAccountDto[0])).map(UserAccountDto::getId).collect(Collectors.toList());
 
         List<String> ids = epcIdList.stream().map(Object::toString).collect(Collectors.toList());
 

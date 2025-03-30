@@ -11,5 +11,5 @@ import java.util.List;
 public class GetUserAccountResponse {
 
     @JsonProperty
-    private List<UserAccount> accounts;
+    private List<UserAccountDto> accounts;
 }

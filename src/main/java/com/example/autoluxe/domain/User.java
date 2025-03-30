@@ -34,6 +34,9 @@ public class User implements UserDetails, Serializable {
     @Column(name = "email",unique = true)
     private String email;
 
+    @Column(name = "phone")
+    private String phone;
+
     @Column(name = "password")
     private String password;
 
@@ -53,6 +56,10 @@ public class User implements UserDetails, Serializable {
     @Column(name = "epics_ids",columnDefinition = "text[]")
     private List<String> epics_ids;
 
+    @ToString.Exclude
+    @OneToMany(mappedBy = "user",orphanRemoval = true)
+    private List<UserAccount> accounts;
+
     @Column(name = "epics_name")
     private String epics_name;
 
@@ -63,8 +70,10 @@ public class User implements UserDetails, Serializable {
     private String epics_login;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user",orphanRemoval = true)
     private List<Token> tokenList;
+
+    private Boolean active=false;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

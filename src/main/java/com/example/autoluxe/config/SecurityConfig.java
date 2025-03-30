@@ -67,7 +67,7 @@ public class SecurityConfig {
             throws Exception {
         httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(AbstractHttpConfigurer::disable)
+                .cors(cors->corsConfigurationSource())
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(sessionManagement ->
                         sessionManagement
@@ -94,8 +94,11 @@ public class SecurityConfig {
                                             response.getWriter()
                                                     .write("Unauthorized.");
                                         }))
+
                 .authorizeHttpRequests(configurer ->
                         configurer.requestMatchers("/api/auth/**")
+                                .permitAll()
+                                .requestMatchers("/")
                                 .permitAll()
                                 .requestMatchers("/swagger-ui/**")
                                 .permitAll()
@@ -105,6 +108,8 @@ public class SecurityConfig {
                                 .hasAnyAuthority("ROLE_ADMIN","ROLE_USER")
                                 .requestMatchers("/api/profile/**")
                                 .hasAnyAuthority("ROLE_ADMIN","ROLE_USER")
+                                .requestMatchers("/api/accounts/**")
+                                .hasAuthority("ROLE_ADMIN")
                                 .anyRequest().authenticated())
                 .logout(logout->logout.addLogoutHandler(logoutService)
                         .logoutUrl("api/users/auth/logout")
@@ -123,6 +128,7 @@ public class SecurityConfig {
         configuration.setAllowedMethods(List.of("*"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

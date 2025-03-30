@@ -4,6 +4,7 @@ import com.example.autoluxe.domain.User;
 import com.example.autoluxe.dto.AdminDto;
 import com.example.autoluxe.dto.UserDto;
 import com.example.autoluxe.payload.*;
+import com.example.autoluxe.payload.confirmbuy.ConfirmByResponse;
 import com.example.autoluxe.payload.getbuytoken.GetByTokenRequest;
 import com.example.autoluxe.payload.getbuytoken.GetByTokenResponse;
 import com.example.autoluxe.payload.getuseraccounts.GetUserAccountResponse;
@@ -50,34 +51,47 @@ public class UserController {
     public UserDto getUserToken(@PathVariable(name = "id")Long id,@AuthenticationPrincipal User user) {
         return userService.getUserToken(id, user);
     }
-    @PatchMapping("hideacc/{id}")
-    public ResponseEntity<ApiResponse> hideAcc(@PathVariable(name = "id")Long id) {
-       return userService.hideAccount(id);
+    @PatchMapping("{id}/hideacc/{accId}")
+    public ResponseEntity<ApiResponse> hideAcc(@PathVariable(name = "id")Long id,
+
+                                               @PathVariable(name = "accId")Long accId) {
+       return userService.hideAccount(id,accId);
     }
-    @PatchMapping("chagename/{id}")
+    @PatchMapping("{id}/chageName/{accId}")
     public ResponseEntity<ApiResponse> changeName(@PathVariable(name = "id")Long id,
+                                                  @PathVariable(name = "accId") Long accountId,
                                                   @RequestBody ChangeUserNameRequest request) {
-        return userService.changeUserName(id, request);
+        return userService.changeUserName(id,accountId, request);
     }
-    @PatchMapping("changelogin/{id}")
+    @PatchMapping("{id}/changeLogin/{accId}")
     public ResponseEntity<ApiResponse> changeLogin(@PathVariable(name = "id")Long id,
+                                                   @PathVariable(name = "accId") Long accountId,
                                                    @RequestBody ChangeUserLoginRequest request) {
-        return userService.changeUserLogin(id, request);
+        return userService.changeUserLogin(id,accountId, request);
     }
-    @PatchMapping("changepass/{id}")
+    @PatchMapping("{id}/changePass/{accId}")
     public ResponseEntity<ApiResponse> changePass(@PathVariable(name = "id")Long id,
+                                                  @PathVariable(name = "accId") Long accountId,
                                                   @RequestBody ChangeUserPass request) {
-        return userService.changeUserPass(id, request);
+        return userService.changeUserPass(id,accountId, request);
     }
-    @PatchMapping("getbytoken/{id}")
-    public ResponseEntity<GetByTokenResponse> getByToken(@PathVariable(name = "id")Long id, @RequestBody
-            GetByTokenRequest request) {
-        return userService.getByToken(id, request);
+    @PatchMapping("/{id}/getByToken/{accId}")
+    public ResponseEntity<GetByTokenResponse> getByToken(@PathVariable(name = "id")Long id,
+                                                         @PathVariable(name = "accId") Long accId,
+                                                         @RequestBody GetByTokenRequest request) {
+        return userService.getByToken(id,accId,request);
     }
-    @PatchMapping("getuseracc/{id}")
-    public ResponseEntity<GetUserAccountResponse> getUserAccoucount(@PathVariable(name = "id")Long id) {
+
+    @PatchMapping("{id}/confirmBuy")
+    public ResponseEntity<ConfirmByResponse> confirmBy(@PathVariable(name = "id")Long id) {
+        return userService.confirmBuy(id);
+    }
+
+    @PatchMapping("{id}/getUserAcc")
+    public ResponseEntity<GetUserAccountResponse> getUserAccounts(@PathVariable(name = "id")Long id) {
         return userService.getUserAccount(id);
     }
+
 
     @PatchMapping("addsub/{id}")
     public UserDto addSubUser(@PathVariable(name = "id")Long id) {
@@ -85,7 +99,8 @@ public class UserController {
     }
 
     @PatchMapping("admintoken")
-    public AdminDto addPartnerToken(@AuthenticationPrincipal User user,@RequestBody AddPartnerToken token) {
+    public AdminDto addPartnerToken(@AuthenticationPrincipal User user,
+                                    @RequestBody AddPartnerToken token) {
         return userService.addPartnerToken(user,token);
     }
 
