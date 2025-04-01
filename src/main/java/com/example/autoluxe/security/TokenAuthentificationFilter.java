@@ -50,20 +50,6 @@ public class TokenAuthentificationFilter extends OncePerRequestFilter {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-      //      Authentication authentication = tokenProvider.getAuthentication(token);
-//
-    //        UsernamePasswordAuthenticationToken
-   //                 usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-   //                 authentication.getPrincipal(), null,
-   //                 authentication.getPrincipal() == null ?
-   //                         Arrays.asList() : authentication.getAuthorities()
-   //         );
-
-    //        usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-  ///          SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-   ///         filterChain.doFilter(request, response);
-   //        return;
 
         }
 

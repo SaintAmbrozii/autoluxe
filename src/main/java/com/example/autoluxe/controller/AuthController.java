@@ -6,6 +6,10 @@ import com.example.autoluxe.config.AppProperties;
 import com.example.autoluxe.domain.Role;
 import com.example.autoluxe.domain.Token;
 import com.example.autoluxe.domain.User;
+import com.example.autoluxe.events.GetUserAccountsEvent;
+import com.example.autoluxe.events.GetUserAccountsListener;
+import com.example.autoluxe.events.GetUserTokenEvent;
+import com.example.autoluxe.events.GetUserTokenListener;
 import com.example.autoluxe.exception.AppException;
 import com.example.autoluxe.payload.ApiResponse;
 import com.example.autoluxe.payload.LoginRequest;
@@ -17,6 +21,7 @@ import com.example.autoluxe.service.LogoutService;
 import com.example.autoluxe.service.UserService;
 import com.example.autoluxe.service.UserTokenService;
 import com.example.autoluxe.utils.CookieUtil;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -50,10 +55,13 @@ public class AuthController {
     private final LogoutService logoutService;
     private final CookieUtil cookieUtil;
     private final AppProperties properties;
+    private final GetUserTokenListener getUserTokenListener;
+    private final GetUserAccountsListener getUserAccountsListener;
 
     public AuthController(AuthenticationManager authenticationManager, UserService userService,
                           UserRepo userRepo, TokenProvider tokenProvider, PasswordEncoder encoder,
-                          UserTokenService tokenService, LogoutService logoutService, CookieUtil cookieUtil, AppProperties properties) {
+                          UserTokenService tokenService, LogoutService logoutService, CookieUtil cookieUtil, AppProperties properties,
+                          GetUserAccountsListener accountsListener, GetUserTokenListener getUserTokenListener, GetUserAccountsListener getUserAccountsListener) {
         this.authenticationManager = authenticationManager;
         this.userService = userService;
         this.userRepo = userRepo;
@@ -63,6 +71,8 @@ public class AuthController {
         this.logoutService = logoutService;
         this.cookieUtil = cookieUtil;
         this.properties = properties;
+        this.getUserTokenListener = getUserTokenListener;
+        this.getUserAccountsListener = getUserAccountsListener;
     }
 
 
@@ -88,6 +98,8 @@ public class AuthController {
         TokenResponse tokenResponse = TokenResponse.builder().accessToken(access).refreshToken(refresh).build();
         tokenService.saveToken(user, refresh);
 
+        getUserAccountsListener.onApplicationEvent(new GetUserAccountsEvent(user.getId()));
+
         addAccessTokenCookie(responseHeaders, accessToken);
         addRefreshTokenCookie(responseHeaders, refreshToken);
 
@@ -96,7 +108,7 @@ public class AuthController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse> registerUser(@RequestBody SignUpRequest signUpRequest) {
+    public ResponseEntity<ApiResponse> registerUser(@RequestBody @Valid SignUpRequest signUpRequest) {
         Optional<User> userFromDB = userRepo.findUserByEmail(signUpRequest.getEmail());
 
         if (userFromDB.isPresent()) {
@@ -105,6 +117,7 @@ public class AuthController {
 
         User user = new User();
         user.setEmail(signUpRequest.getEmail());
+        user.setPhone(signUpRequest.getPhone());
         user.setPassword(encoder.encode(signUpRequest.getPassword()));
         user.setName(signUpRequest.getName());
 
@@ -115,6 +128,8 @@ public class AuthController {
         URI location = ServletUriComponentsBuilder
                 .fromCurrentContextPath().path("/user/me")
                 .buildAndExpand(userAfterSaving.getId()).toUri();
+
+       getUserTokenListener.onApplicationEvent(new GetUserTokenEvent(user.getId()));
 
 
 

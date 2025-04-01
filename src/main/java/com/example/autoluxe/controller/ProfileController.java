@@ -32,7 +32,7 @@ public class ProfileController {
         return userService.findById(user.getId());
     }
 
-    @GetMapping("accounts")
+    @GetMapping("/accounts")
     public List<UserAccount> findByUser(@AuthenticationPrincipal User user) {
         return accountService.findAllByUserId(user.getId());
     }
@@ -40,34 +40,34 @@ public class ProfileController {
     public UserDto update (@AuthenticationPrincipal User user) {
         return userService.updateUser(user.getId(), user);
     }
-    @PatchMapping("accounts/hide/{id}")
+    @PatchMapping("/accounts/hide/{id}")
     public ResponseEntity<ApiResponse> hide (@PathVariable(name = "id") Long accountId,
                                              @AuthenticationPrincipal User user) {
         return userService.hideAccount(accountId,user.getId());
     }
-    @PatchMapping("accounts/changeName/{id}")
+    @PatchMapping("/accounts/changeName/{id}")
     public ResponseEntity<ApiResponse> changeName(@PathVariable(name = "id")Long accountId,
                                                   @AuthenticationPrincipal User user,
                                                   @RequestBody ChangeUserNameRequest request) {
 
         return userService.changeUserName(user.getId(),accountId,request);
     }
-    @PatchMapping("accounts/changeLogin/{id}")
+    @PatchMapping("/accounts/changeLogin/{id}")
     public ResponseEntity<ApiResponse> changeLogin(@PathVariable(name = "id")Long accountId,
                                                    @AuthenticationPrincipal User user,
                                                    @RequestBody ChangeUserLoginRequest request) {
         return userService.changeUserLogin(user.getId(),accountId,request);
     }
-    @PatchMapping("accounts/changePass/{id}")
+    @PatchMapping("/accounts/changePass/{id}")
     public ResponseEntity<ApiResponse> changePass(@PathVariable(name = "id")Long accountId,
                                                   @AuthenticationPrincipal User user,
                                                   @RequestBody ChangeUserPass request) {
         return userService.changeUserPass(user.getId(),accountId,request);
     }
 
-    @PatchMapping("addsub/{id}")
-    public UserDto addSubUser(@AuthenticationPrincipal User user) {
-        return userService.addSubUser(user.getId());
+    @PatchMapping("/addsub")
+    public void addSubUser(@AuthenticationPrincipal User user) {
+        userService.addSubUser(user.getId());
     }
 
 

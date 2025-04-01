@@ -1,10 +1,13 @@
 package com.example.autoluxe.service;
 
 
+import com.example.autoluxe.domain.Payments;
 import com.example.autoluxe.domain.User;
 import com.example.autoluxe.domain.UserAccount;
 import com.example.autoluxe.dto.AdminDto;
 import com.example.autoluxe.dto.UserDto;
+import com.example.autoluxe.events.GetUserAccountsEvent;
+import com.example.autoluxe.events.GetUserAccountsListener;
 import com.example.autoluxe.exception.NotFoundException;
 import com.example.autoluxe.payload.*;
 import com.example.autoluxe.payload.addsubuser.AddSubUserRequest;
@@ -15,7 +18,6 @@ import com.example.autoluxe.payload.getbuytoken.GetByTokenRequest;
 import com.example.autoluxe.payload.getbuytoken.GetByTokenResponse;
 import com.example.autoluxe.payload.getuseraccounts.GetUserAccountResponse;
 import com.example.autoluxe.payload.getuseraccounts.GetUserAccounts;
-import com.example.autoluxe.payload.getuseraccounts.UserAccountDto;
 import com.example.autoluxe.payload.getusertoken.GetUserTokenRequest;
 import com.example.autoluxe.payload.getusertoken.GetUserTokenResponse;
 import com.example.autoluxe.payload.hideuseracc.HideAccRequest;
@@ -25,6 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -40,11 +43,18 @@ public class UserService {
     private final UserRepo userRepo;
     private final PasswordEncoder encoder;
     private final AccountService accountService;
+    private final GetUserAccountsListener getUserAccountsListener;
+    private final PaymentService paymentService;
 
-    public UserService(UserRepo userRepo, PasswordEncoder encoder, AccountService accountService) {
+    public UserService(UserRepo userRepo, PasswordEncoder encoder,
+                       AccountService accountService,
+                       GetUserAccountsListener getUserAccountsListener,
+                       PaymentService paymentService) {
         this.userRepo = userRepo;
         this.encoder = encoder;
         this.accountService = accountService;
+        this.getUserAccountsListener = getUserAccountsListener;
+        this.paymentService = paymentService;
     }
 
 
@@ -68,7 +78,7 @@ public class UserService {
         return userRepo.findUserByEmail(email).stream().map(UserDto::toDto).findFirst();
     }
 
-    public UserDto getUserToken (Long userId,User user) {
+    public void getUserToken (Long userId) {
 
         User inDB = userRepo.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
@@ -77,7 +87,7 @@ public class UserService {
 
         GetUserTokenRequest tokenRequest = GetUserTokenRequest.builder()
                 .user_id(inDB.getId())
-                .partner_token(user.getPartner_token()).build();
+                .partner_token(partner_token).build();
 
         GetUserTokenResponse response = client.
                 post().
@@ -88,12 +98,11 @@ public class UserService {
 
         inDB.setEpic_token(response.getToken());
 
-        User updated = userRepo.save(inDB);
-        return UserDto.toDto(updated);
+        userRepo.save(inDB);
 
     }
 
-    public UserDto addSubUser(Long userId) {
+    public void addSubUser(Long userId) {
 
         User inDB = userRepo.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
@@ -110,16 +119,11 @@ public class UserService {
                 retrieve()
                 .body(AddSubUserResponse.class);
 
-        List<String> epicId = Collections.singletonList(String.valueOf(response.getEpc_id()));
-        inDB.setEpics_ids(epicId);
-
-        User update = userRepo.save(inDB);
-
-        return UserDto.toDto(update);
+        getUserAccountsListener.onApplicationEvent(new GetUserAccountsEvent(inDB.getId()));
 
     }
 
-    public ResponseEntity<ApiResponse> hideAccount(Long userId, Long accountId) {
+    public void hideAccount(Long userId, Long accountId) {
         User inDB = userRepo.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
@@ -141,13 +145,10 @@ public class UserService {
                 retrieve()
                 .toBodilessEntity();
 
-        account.setHide(true);
-        accountService.save(account);
-
-        return ResponseEntity.ok(new ApiResponse(true,"Hide account sucessfully"));
+        getUserAccountsListener.onApplicationEvent(new GetUserAccountsEvent(inDB.getId()));
     }
 
-    public ResponseEntity<ApiResponse> changeUserName(Long userId,Long accountId, ChangeUserNameRequest request) {
+    public void changeUserName(Long userId,Long accountId, ChangeUserNameRequest request) {
         User inDB = userRepo.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
@@ -170,13 +171,11 @@ public class UserService {
                 retrieve()
                 .toBodilessEntity();
 
-        account.setName(request.getName());
-        accountService.save(account);
+        getUserAccountsListener.onApplicationEvent(new GetUserAccountsEvent(inDB.getId()));
 
-        return ResponseEntity.ok(new ApiResponse(true,"ChangeUserName sucessfully"));
     }
 
-    public ResponseEntity<ApiResponse> changeUserLogin(Long userId,Long accountId, ChangeUserLoginRequest request) {
+    public void changeUserLogin(Long userId,Long accountId, ChangeUserLoginRequest request) {
         User inDB = userRepo.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
@@ -199,13 +198,12 @@ public class UserService {
                 retrieve()
                 .toBodilessEntity();
 
-        account.setADName(request.getLogin());
-        accountService.save(account);
+        getUserAccountsListener.onApplicationEvent(new GetUserAccountsEvent(inDB.getId()));
 
-        return ResponseEntity.ok(new ApiResponse(true,"ChangeUserLogin sucessfully"));
+
     }
 
-    public ResponseEntity<ApiResponse> changeUserPass(Long userId,Long accountId, ChangeUserPass request) {
+    public void changeUserPass(Long userId,Long accountId, ChangeUserPass request) {
         User inDB = userRepo.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
@@ -228,10 +226,9 @@ public class UserService {
                 retrieve()
                 .toBodilessEntity();
 
-        account.setPass(request.getPass());
-        accountService.save(account);
+        getUserAccountsListener.onApplicationEvent(new GetUserAccountsEvent(inDB.getId()));
 
-        return ResponseEntity.ok(new ApiResponse(true,"ChangeUserPass sucessfully"));
+
     }
 
     public ResponseEntity<GetByTokenResponse> getByToken (Long userId,Long accountId, GetByTokenRequest request) {
@@ -266,7 +263,7 @@ public class UserService {
     }
 
 
-    public ResponseEntity<ConfirmByResponse> confirmBuy (Long userId) {
+    public void confirmBuy (Long userId) {
 
         User inDB = userRepo.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
@@ -292,13 +289,13 @@ public class UserService {
             account.setEpcId(a.getEpc_id());
             account.setLogin(a.getLogin());
             account.setPass(a.getPass());
+
             return account;
         }).collect(Collectors.toList());
 
         accountService.accountSaveList(accounts);
 
 
-        return ResponseEntity.ok(response);
     }
 
     public ResponseEntity<GetUserAccountResponse> getUserAccount(Long userId){
@@ -331,15 +328,6 @@ public class UserService {
 
         accountService.accountSaveList(accounts);
 
-        List<Integer> epcIdList = Arrays.stream(response.getAccounts()
-                .toArray(new UserAccountDto[0])).map(UserAccountDto::getId).collect(Collectors.toList());
-
-        List<String> ids = epcIdList.stream().map(Object::toString).collect(Collectors.toList());
-
-        inDB.setEpics_ids(ids);
-
-        userRepo.save(inDB);
-
         return ResponseEntity.ok(response);
 
     }
@@ -362,6 +350,18 @@ public class UserService {
 
     public UserDto findById(Long id) {
         User inDB = userRepo.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
+        return UserDto.toDto(inDB);
+    }
+
+    public UserDto addBalance(Long id, Double balance) {
+        User inDB = userRepo.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
+        inDB.setBalance(balance);
+        Payments payments = new Payments();
+        payments.setCreated(LocalDateTime.now());
+        payments.setManagerId(32L);
+        payments.setUserId(inDB.getId());
+        payments.setSumma(balance);
+        payments.setPayAdmin(true);
         return UserDto.toDto(inDB);
     }
 

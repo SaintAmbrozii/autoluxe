@@ -47,10 +47,10 @@ public class UserController {
     public UserDto updateUser(@PathVariable(name = "id")Long id, @AuthenticationPrincipal User user) {
         return userService.updateUser(id, user);
     }
-    @PatchMapping("gettoken/{id}")
-    public UserDto getUserToken(@PathVariable(name = "id")Long id,@AuthenticationPrincipal User user) {
-        return userService.getUserToken(id, user);
-    }
+  //  @PatchMapping("gettoken/{id}")
+  //  public UserDto getUserToken(@PathVariable(name = "id")Long id,@AuthenticationPrincipal User user) {
+  //      return userService.getUserToken(id, user);
+ //   }
     @PatchMapping("{id}/hideacc/{accId}")
     public ResponseEntity<ApiResponse> hideAcc(@PathVariable(name = "id")Long id,
 
@@ -69,12 +69,12 @@ public class UserController {
                                                    @RequestBody ChangeUserLoginRequest request) {
         return userService.changeUserLogin(id,accountId, request);
     }
-    @PatchMapping("{id}/changePass/{accId}")
-    public ResponseEntity<ApiResponse> changePass(@PathVariable(name = "id")Long id,
-                                                  @PathVariable(name = "accId") Long accountId,
-                                                  @RequestBody ChangeUserPass request) {
-        return userService.changeUserPass(id,accountId, request);
-    }
+ //   @PatchMapping("{id}/changePass/{accId}")
+ //   public ResponseEntity<ApiResponse> changePass(@PathVariable(name = "id")Long id,
+ //                                                 @PathVariable(name = "accId") Long accountId,
+ //                                                 @RequestBody ChangeUserPass request) {
+ //       return userService.changeUserPass(id,accountId, request);
+ //   }
     @PatchMapping("/{id}/getByToken/{accId}")
     public ResponseEntity<GetByTokenResponse> getByToken(@PathVariable(name = "id")Long id,
                                                          @PathVariable(name = "accId") Long accId,
@@ -94,8 +94,8 @@ public class UserController {
 
 
     @PatchMapping("addsub/{id}")
-    public UserDto addSubUser(@PathVariable(name = "id")Long id) {
-        return userService.addSubUser(id);
+    public void addSubUser(@PathVariable(name = "id")Long id) {
+         userService.addSubUser(id);
     }
 
     @PatchMapping("admintoken")

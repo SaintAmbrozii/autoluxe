@@ -20,6 +20,9 @@ public class UserAccount {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "userId")
+    private Long userId;
+
     @Column(name = "epcId")
     private Integer epcId;
 
@@ -43,9 +46,7 @@ public class UserAccount {
     @Column(name = "RFSExpires")
     private String RFCExpires;
 
-    @ToString.Exclude
-    @ManyToOne(fetch = FetchType.EAGER)
-    private User user;
+
 
 
 }

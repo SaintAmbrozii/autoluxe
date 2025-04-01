@@ -26,18 +26,16 @@ public class AccountService {
     }
 
     public Optional<UserAccount> findByEpcId(Integer id){
-        UserAccount account = new UserAccount();
         return accountRepo.findUserAccountByEpcId(id);
     }
+
+
 
 
     public Optional<UserAccount> findById(Long id) {
         return accountRepo.findById(id);
     }
 
-    public UserAccount save(UserAccount account) {
-      return  accountRepo.save(account);
-    }
 
     public void accountSaveList(List<UserAccount> list) {
         accountRepo.saveAll(list);

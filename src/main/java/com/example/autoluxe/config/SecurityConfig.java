@@ -105,7 +105,7 @@ public class SecurityConfig {
                                 .requestMatchers("/v3/api-docs/**")
                                 .permitAll()
                                 .requestMatchers("/api/users/**")
-                                .hasAnyAuthority("ROLE_ADMIN","ROLE_USER")
+                                .hasAnyAuthority("ROLE_ADMIN")
                                 .requestMatchers("/api/profile/**")
                                 .hasAnyAuthority("ROLE_ADMIN","ROLE_USER")
                                 .requestMatchers("/api/accounts/**")

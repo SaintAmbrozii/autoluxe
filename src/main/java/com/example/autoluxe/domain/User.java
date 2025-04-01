@@ -34,7 +34,7 @@ public class User implements UserDetails, Serializable {
     @Column(name = "email",unique = true)
     private String email;
 
-    @Column(name = "phone")
+    @Column(name = "phone",unique = true)
     private String phone;
 
     @Column(name = "password")
@@ -52,22 +52,8 @@ public class User implements UserDetails, Serializable {
     @Column(name = "epic_token")
     private String epic_token;
 
-    @Type(ListArrayType.class)
-    @Column(name = "epics_ids",columnDefinition = "text[]")
-    private List<String> epics_ids;
-
-    @ToString.Exclude
-    @OneToMany(mappedBy = "user",orphanRemoval = true)
-    private List<UserAccount> accounts;
-
-    @Column(name = "epics_name")
-    private String epics_name;
-
-    @Column(name = "epics_password")
-    private String epics_password;
-
-    @Column(name = "epics_login")
-    private String epics_login;
+    @Column(name = "balance")
+    private Double balance;
 
     @ToString.Exclude
     @OneToMany(mappedBy = "user",orphanRemoval = true)
@@ -82,7 +68,7 @@ public class User implements UserDetails, Serializable {
 
     @Override
     public String getUsername() {
-        return epics_name;
+        return email;
     }
 
     @Override
