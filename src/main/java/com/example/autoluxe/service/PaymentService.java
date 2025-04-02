@@ -23,7 +23,7 @@ public class PaymentService {
         return paymentRepo.findAllByPayAdminIsTrue();
     }
 
-    private Payments save(Payments payments) {
+    public Payments save(Payments payments) {
         return paymentRepo.save(payments);
     }
 }

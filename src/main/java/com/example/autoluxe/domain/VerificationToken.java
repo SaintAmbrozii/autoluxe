@@ -1,10 +1,7 @@
 package com.example.autoluxe.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.stereotype.Service;
 
 import java.security.Timestamp;
@@ -17,6 +14,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Entity
 @Table(name = "verification_tokens")
+@Builder
 public class VerificationToken {
 
     private static final int EXPIRATION = 60 * 24* 7;

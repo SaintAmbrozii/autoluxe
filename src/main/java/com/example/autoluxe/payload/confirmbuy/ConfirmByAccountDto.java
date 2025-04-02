@@ -14,4 +14,6 @@ public class ConfirmByAccountDto {
     private String login;
 
     private String pass;
+
+    private String expires;
 }

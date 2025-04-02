@@ -3,9 +3,7 @@ package com.example.autoluxe.controller;
 
 
 import com.example.autoluxe.config.AppProperties;
-import com.example.autoluxe.domain.Role;
-import com.example.autoluxe.domain.Token;
-import com.example.autoluxe.domain.User;
+import com.example.autoluxe.domain.*;
 import com.example.autoluxe.events.GetUserAccountsEvent;
 import com.example.autoluxe.events.GetUserAccountsListener;
 import com.example.autoluxe.events.GetUserTokenEvent;
@@ -17,10 +15,9 @@ import com.example.autoluxe.payload.SignUpRequest;
 import com.example.autoluxe.payload.TokenResponse;
 import com.example.autoluxe.repo.UserRepo;
 import com.example.autoluxe.security.TokenProvider;
-import com.example.autoluxe.service.LogoutService;
-import com.example.autoluxe.service.UserService;
-import com.example.autoluxe.service.UserTokenService;
+import com.example.autoluxe.service.*;
 import com.example.autoluxe.utils.CookieUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -35,12 +32,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.time.Instant;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.Properties;
 
 @RestController
 @RequestMapping("api/auth")
@@ -57,11 +57,14 @@ public class AuthController {
     private final AppProperties properties;
     private final GetUserTokenListener getUserTokenListener;
     private final GetUserAccountsListener getUserAccountsListener;
+    private final MailService mailService;
+    private final AccountService accountService;
 
     public AuthController(AuthenticationManager authenticationManager, UserService userService,
                           UserRepo userRepo, TokenProvider tokenProvider, PasswordEncoder encoder,
                           UserTokenService tokenService, LogoutService logoutService, CookieUtil cookieUtil, AppProperties properties,
-                          GetUserAccountsListener accountsListener, GetUserTokenListener getUserTokenListener, GetUserAccountsListener getUserAccountsListener) {
+                          GetUserTokenListener getUserTokenListener,
+                          GetUserAccountsListener getUserAccountsListener, MailService mailService, AccountService accountService) {
         this.authenticationManager = authenticationManager;
         this.userService = userService;
         this.userRepo = userRepo;
@@ -73,6 +76,8 @@ public class AuthController {
         this.properties = properties;
         this.getUserTokenListener = getUserTokenListener;
         this.getUserAccountsListener = getUserAccountsListener;
+        this.mailService = mailService;
+        this.accountService = accountService;
     }
 
 
@@ -108,8 +113,12 @@ public class AuthController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse> registerUser(@RequestBody @Valid SignUpRequest signUpRequest) {
+    public ResponseEntity<ApiResponse> registerUser(@RequestBody
+                                                        @Valid SignUpRequest signUpRequest,
+                                                    HttpServletRequest request) {
         Optional<User> userFromDB = userRepo.findUserByEmail(signUpRequest.getEmail());
+
+        String appUrl = request.getContextPath();
 
         if (userFromDB.isPresent()) {
             throw new BadCredentialsException("Username is already exists");
@@ -129,13 +138,30 @@ public class AuthController {
                 .fromCurrentContextPath().path("/user/me")
                 .buildAndExpand(userAfterSaving.getId()).toUri();
 
-       getUserTokenListener.onApplicationEvent(new GetUserTokenEvent(user.getId()));
+        getUserTokenListener.onApplicationEvent(new GetUserTokenEvent(user.getId()));
 
+        mailService.sendEmail(user, MailType.REGISTRATION, new Properties());
 
 
         return ResponseEntity.created(location)
                 .body(new ApiResponse(true, "User registered successfully!"));
     }
+
+    @GetMapping("/regitrationConfirm")
+    public ResponseEntity<ApiResponse> confirm(@RequestParam("token") String token) {
+
+
+        VerificationToken verificationToken = accountService.getVerificationToken(token);
+
+        User user = accountService.getUser(verificationToken);
+
+        user.setActive(true);
+        userRepo.save(user);
+
+       return
+               ResponseEntity.ok(new ApiResponse(true, "User confirmed successfully!"));
+    }
+
 
 
 

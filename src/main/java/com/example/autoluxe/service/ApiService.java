@@ -3,6 +3,8 @@ package com.example.autoluxe.service;
 import com.example.autoluxe.domain.User;
 import com.example.autoluxe.domain.UserAccount;
 import com.example.autoluxe.exception.NotFoundException;
+import com.example.autoluxe.payload.confirmbuy.ConfirmBuyRequest;
+import com.example.autoluxe.payload.confirmbuy.ConfirmByResponse;
 import com.example.autoluxe.payload.getuseraccounts.GetUserAccountResponse;
 import com.example.autoluxe.payload.getuseraccounts.GetUserAccounts;
 import com.example.autoluxe.payload.getusertoken.GetUserTokenRequest;
@@ -88,11 +90,39 @@ public class ApiService {
             return account;
         }).collect(Collectors.toList());
 
-
-
         accountService.accountSaveList(accounts);
 
         return ResponseEntity.ok(response);
+
+    }
+
+    public void confirmBuy (String Btoken, String usertoken) {
+
+
+        RestClient client = RestClient.create();
+
+        ConfirmBuyRequest request = ConfirmBuyRequest.
+                builder()
+                .token(usertoken)
+                .Btoken(Btoken).build();
+
+        ConfirmByResponse response = client.
+                post().
+                uri(EPIC_URI + "confirm_buy").
+                body(request).
+                retrieve()
+                .body(ConfirmByResponse.class);
+
+        List<UserAccount> accounts = response.getByAccountDtoList().stream().map(a-> {
+            UserAccount account = new UserAccount();
+            account.setEpcId(a.getEpc_id());
+            account.setLogin(a.getLogin());
+            account.setPass(a.getPass());
+            account.setRFCExpires(a.getExpires());
+            return account;
+        }).collect(Collectors.toList());
+
+        accountService.accountSaveList(accounts);
 
     }
 }

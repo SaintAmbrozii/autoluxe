@@ -47,62 +47,7 @@ public class UserController {
     public UserDto updateUser(@PathVariable(name = "id")Long id, @AuthenticationPrincipal User user) {
         return userService.updateUser(id, user);
     }
-  //  @PatchMapping("gettoken/{id}")
-  //  public UserDto getUserToken(@PathVariable(name = "id")Long id,@AuthenticationPrincipal User user) {
-  //      return userService.getUserToken(id, user);
- //   }
-    @PatchMapping("{id}/hideacc/{accId}")
-    public ResponseEntity<ApiResponse> hideAcc(@PathVariable(name = "id")Long id,
 
-                                               @PathVariable(name = "accId")Long accId) {
-       return userService.hideAccount(id,accId);
-    }
-    @PatchMapping("{id}/chageName/{accId}")
-    public ResponseEntity<ApiResponse> changeName(@PathVariable(name = "id")Long id,
-                                                  @PathVariable(name = "accId") Long accountId,
-                                                  @RequestBody ChangeUserNameRequest request) {
-        return userService.changeUserName(id,accountId, request);
-    }
-    @PatchMapping("{id}/changeLogin/{accId}")
-    public ResponseEntity<ApiResponse> changeLogin(@PathVariable(name = "id")Long id,
-                                                   @PathVariable(name = "accId") Long accountId,
-                                                   @RequestBody ChangeUserLoginRequest request) {
-        return userService.changeUserLogin(id,accountId, request);
-    }
- //   @PatchMapping("{id}/changePass/{accId}")
- //   public ResponseEntity<ApiResponse> changePass(@PathVariable(name = "id")Long id,
- //                                                 @PathVariable(name = "accId") Long accountId,
- //                                                 @RequestBody ChangeUserPass request) {
- //       return userService.changeUserPass(id,accountId, request);
- //   }
-    @PatchMapping("/{id}/getByToken/{accId}")
-    public ResponseEntity<GetByTokenResponse> getByToken(@PathVariable(name = "id")Long id,
-                                                         @PathVariable(name = "accId") Long accId,
-                                                         @RequestBody GetByTokenRequest request) {
-        return userService.getByToken(id,accId,request);
-    }
-
-    @PatchMapping("{id}/confirmBuy")
-    public ResponseEntity<ConfirmByResponse> confirmBy(@PathVariable(name = "id")Long id) {
-        return userService.confirmBuy(id);
-    }
-
-    @PatchMapping("{id}/getUserAcc")
-    public ResponseEntity<GetUserAccountResponse> getUserAccounts(@PathVariable(name = "id")Long id) {
-        return userService.getUserAccount(id);
-    }
-
-
-    @PatchMapping("addsub/{id}")
-    public void addSubUser(@PathVariable(name = "id")Long id) {
-         userService.addSubUser(id);
-    }
-
-    @PatchMapping("admintoken")
-    public AdminDto addPartnerToken(@AuthenticationPrincipal User user,
-                                    @RequestBody AddPartnerToken token) {
-        return userService.addPartnerToken(user,token);
-    }
 
     @DeleteMapping("{id}")
     public void deleteUser(@PathVariable(name = "id")Long id){

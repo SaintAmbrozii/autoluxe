@@ -6,6 +6,8 @@ import com.example.autoluxe.domain.User;
 import com.example.autoluxe.domain.UserAccount;
 import com.example.autoluxe.dto.AdminDto;
 import com.example.autoluxe.dto.UserDto;
+import com.example.autoluxe.events.BuyEpcTokenEvent;
+import com.example.autoluxe.events.BuyEpcTokenEventListener;
 import com.example.autoluxe.events.GetUserAccountsEvent;
 import com.example.autoluxe.events.GetUserAccountsListener;
 import com.example.autoluxe.exception.NotFoundException;
@@ -25,6 +27,7 @@ import com.example.autoluxe.repo.UserRepo;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
 
 import java.time.LocalDateTime;
@@ -38,23 +41,24 @@ public class UserService {
 
     private static final String partner_token = "1e3972f9908c713356e9eb255947f148";
 
-    private static final Map<String,String> buyTokenMap = new HashMap<>();
 
     private final UserRepo userRepo;
     private final PasswordEncoder encoder;
     private final AccountService accountService;
     private final GetUserAccountsListener getUserAccountsListener;
     private final PaymentService paymentService;
+    private final BuyEpcTokenEventListener buyEpcTokenEventListener;
 
     public UserService(UserRepo userRepo, PasswordEncoder encoder,
                        AccountService accountService,
                        GetUserAccountsListener getUserAccountsListener,
-                       PaymentService paymentService) {
+                       PaymentService paymentService, BuyEpcTokenEventListener buyEpcTokenEventListener) {
         this.userRepo = userRepo;
         this.encoder = encoder;
         this.accountService = accountService;
         this.getUserAccountsListener = getUserAccountsListener;
         this.paymentService = paymentService;
+        this.buyEpcTokenEventListener = buyEpcTokenEventListener;
     }
 
 
@@ -231,7 +235,7 @@ public class UserService {
 
     }
 
-    public ResponseEntity<GetByTokenResponse> getByToken (Long userId,Long accountId, GetByTokenRequest request) {
+    public void getByToken (Long userId,Long accountId, GetByTokenRequest request) {
 
         User inDB = userRepo.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
@@ -256,49 +260,14 @@ public class UserService {
                 retrieve()
                 .body(GetByTokenResponse.class);
 
-        buyTokenMap.put(inDB.getEpic_token(),response.getToken());
-
-        return ResponseEntity.ok(response);
-
-    }
-
-
-    public void confirmBuy (Long userId) {
-
-        User inDB = userRepo.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found"));
-
-        RestClient client = RestClient.create();
-
-        String Btoken = buyTokenMap.get(inDB.getEpic_token());
-
-        ConfirmBuyRequest request = ConfirmBuyRequest.
-                builder()
-                .token(inDB.getEpic_token())
-                .Btoken(Btoken).build();
-
-        ConfirmByResponse response = client.
-                post().
-                uri(EPIC_URI + "confirm_buy").
-                body(request).
-                retrieve()
-                .body(ConfirmByResponse.class);
-
-        List<UserAccount> accounts = response.getByAccountDtoList().stream().map(a-> {
-            UserAccount account = new UserAccount();
-            account.setEpcId(a.getEpc_id());
-            account.setLogin(a.getLogin());
-            account.setPass(a.getPass());
-
-            return account;
-        }).collect(Collectors.toList());
-
-        accountService.accountSaveList(accounts);
+        buyEpcTokenEventListener.onApplicationEvent(new BuyEpcTokenEvent(response.getToken(),inDB.getEpic_token()));
 
 
     }
 
-    public ResponseEntity<GetUserAccountResponse> getUserAccount(Long userId){
+
+
+    public void getUserAccount(Long userId){
 
         User inDB = userRepo.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
@@ -328,23 +297,9 @@ public class UserService {
 
         accountService.accountSaveList(accounts);
 
-        return ResponseEntity.ok(response);
 
     }
 
-
-
-
-
-    public AdminDto addPartnerToken(User user, AddPartnerToken token) {
-        User inDb = userRepo.findById(user.getId())
-                .orElseThrow(() -> new NotFoundException("User not found"));
-        inDb.setPartner_token(token.getPartner_token());
-
-        User update = userRepo.save(inDb);
-
-        return AdminDto.toDto(update);
-    }
 
 
 
@@ -353,6 +308,7 @@ public class UserService {
         return UserDto.toDto(inDB);
     }
 
+    @Transactional
     public UserDto addBalance(Long id, Double balance) {
         User inDB = userRepo.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
         inDB.setBalance(balance);
@@ -362,6 +318,8 @@ public class UserService {
         payments.setUserId(inDB.getId());
         payments.setSumma(balance);
         payments.setPayAdmin(true);
+        paymentService.save(payments);
+
         return UserDto.toDto(inDB);
     }
 
