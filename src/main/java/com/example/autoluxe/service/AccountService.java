@@ -37,7 +37,7 @@ public class AccountService {
         return accountRepo.findUserAccountByEpcId(id);
     }
 
-    public User getUser(VerificationToken verificationToken) {
+    public User getUser(String verificationToken) {
         return verificationTokenRepo.findByToken(verificationToken).getUser();
     }
 

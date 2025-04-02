@@ -4,10 +4,7 @@ package com.example.autoluxe.controller;
 
 import com.example.autoluxe.config.AppProperties;
 import com.example.autoluxe.domain.*;
-import com.example.autoluxe.events.GetUserAccountsEvent;
-import com.example.autoluxe.events.GetUserAccountsListener;
-import com.example.autoluxe.events.GetUserTokenEvent;
-import com.example.autoluxe.events.GetUserTokenListener;
+import com.example.autoluxe.events.*;
 import com.example.autoluxe.exception.AppException;
 import com.example.autoluxe.payload.ApiResponse;
 import com.example.autoluxe.payload.LoginRequest;
@@ -32,13 +29,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.time.Instant;
 import java.util.Date;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -59,12 +54,14 @@ public class AuthController {
     private final GetUserAccountsListener getUserAccountsListener;
     private final MailService mailService;
     private final AccountService accountService;
+    private final RegistrationListener registrationListener;
+
 
     public AuthController(AuthenticationManager authenticationManager, UserService userService,
                           UserRepo userRepo, TokenProvider tokenProvider, PasswordEncoder encoder,
                           UserTokenService tokenService, LogoutService logoutService, CookieUtil cookieUtil, AppProperties properties,
                           GetUserTokenListener getUserTokenListener,
-                          GetUserAccountsListener getUserAccountsListener, MailService mailService, AccountService accountService) {
+                          GetUserAccountsListener getUserAccountsListener, MailService mailService, AccountService accountService, RegistrationListener registrationListener) {
         this.authenticationManager = authenticationManager;
         this.userService = userService;
         this.userRepo = userRepo;
@@ -78,6 +75,8 @@ public class AuthController {
         this.getUserAccountsListener = getUserAccountsListener;
         this.mailService = mailService;
         this.accountService = accountService;
+
+        this.registrationListener = registrationListener;
     }
 
 
@@ -140,6 +139,8 @@ public class AuthController {
 
         getUserTokenListener.onApplicationEvent(new GetUserTokenEvent(user.getId()));
 
+        registrationListener.onApplicationEvent(new RegistrationCompleteEvent(userAfterSaving,appUrl,request.getLocale()));
+
         mailService.sendEmail(user, MailType.REGISTRATION, new Properties());
 
 
@@ -153,7 +154,7 @@ public class AuthController {
 
         VerificationToken verificationToken = accountService.getVerificationToken(token);
 
-        User user = accountService.getUser(verificationToken);
+        User user = accountService.getUser(verificationToken.getToken());
 
         user.setActive(true);
         userRepo.save(user);
