@@ -10,6 +10,10 @@ import com.example.autoluxe.payload.getbuytoken.GetByTokenResponse;
 import com.example.autoluxe.payload.getuseraccounts.GetUserAccountResponse;
 import com.example.autoluxe.repo.UserRepo;
 import com.example.autoluxe.service.UserService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -29,9 +33,19 @@ public class UserController {
     }
 
     @GetMapping
-    public List<UserDto> findAll() {
-        return userService.getAllUsers();
+    public Page<UserDto> list(@RequestParam(value = "page", defaultValue = "0", required = false) int page,
+                              @RequestParam(value = "count", defaultValue = "50", required = false) int size,
+                              @RequestParam(value = "order", defaultValue = "DESC", required = false) Sort.Direction direction,
+                              @RequestParam(value = "sort", defaultValue = "id", required = false) String sortProperty) {
+        Sort sort = Sort.by(new Sort.Order(direction, sortProperty));
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return userRepo.findAll(pageable).map(UserDto::toDto);
     }
+
+ //   @GetMapping
+  //  public List<UserDto> findAll() {
+ //       return userService.getAllUsers();
+  //  }
 
     @GetMapping("{id}")
     public UserDto findById(@PathVariable(name = "id")Long id) {

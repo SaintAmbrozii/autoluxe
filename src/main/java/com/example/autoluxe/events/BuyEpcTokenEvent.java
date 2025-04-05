@@ -8,10 +8,11 @@ import org.springframework.context.ApplicationEvent;
 public class BuyEpcTokenEvent extends ApplicationEvent {
 
     String Btoken;
-    String user_token;
-    public BuyEpcTokenEvent(String Btoken, String user_token) {
+    String usertoken;
+
+    public BuyEpcTokenEvent(String Btoken, String usertoken) {
         super(Btoken);
         this.Btoken=Btoken;
-        this.user_token=user_token;
+        this.usertoken=usertoken;
     }
 }

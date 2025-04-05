@@ -17,7 +17,7 @@ public class BuyEpcTokenEventListener implements ApplicationListener<BuyEpcToken
     public void onApplicationEvent(BuyEpcTokenEvent event) {
 
         String Btoken = event.getBtoken();
-        String userToken = event.getUser_token();
+        String userToken = event.getUsertoken();
         apiService.confirmBuy(Btoken,userToken);
     }
 }

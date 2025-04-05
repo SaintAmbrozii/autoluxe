@@ -2,10 +2,12 @@ package com.example.autoluxe.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,9 +21,17 @@ import java.util.Arrays;
 
 public class TokenAuthentificationFilter extends OncePerRequestFilter {
 
+    @Value("${JWT_ACCESS_COOKIE_NAME}")
+    private String accessTokenCookieName;
+
     public static final String HEADER_PREFIX = "Bearer ";
 
     private TokenProvider tokenProvider;
+
+    private String getJwtToken(HttpServletRequest request, boolean fromCookie) {
+        if (fromCookie) return getJwtFromCookie(request);
+        return resolveToken(request);
+    }
 
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader(HttpHeaders.AUTHORIZATION);
@@ -42,7 +52,8 @@ public class TokenAuthentificationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        String token = resolveToken(request);
+        String token = getJwtToken(request,true);
+                //    resolveToken(request);
         if (StringUtils.hasText(token) && this.tokenProvider.validateToken(token)) {
 
             UsernamePasswordAuthenticationToken authentication = tokenProvider.getAuthenticationByUserFromDbWithEmail(token);
@@ -59,5 +70,19 @@ public class TokenAuthentificationFilter extends OncePerRequestFilter {
 
     public void setTokenProvider(TokenProvider tokenProvider) {
         this.tokenProvider = tokenProvider;
+    }
+
+    private String getJwtFromCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+
+        if(cookies == null)
+            return null;
+
+        for (Cookie cookie : cookies) {
+            if (accessTokenCookieName.equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
     }
 }

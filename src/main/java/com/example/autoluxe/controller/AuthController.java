@@ -6,10 +6,7 @@ import com.example.autoluxe.config.AppProperties;
 import com.example.autoluxe.domain.*;
 import com.example.autoluxe.events.*;
 import com.example.autoluxe.exception.AppException;
-import com.example.autoluxe.payload.ApiResponse;
-import com.example.autoluxe.payload.LoginRequest;
-import com.example.autoluxe.payload.SignUpRequest;
-import com.example.autoluxe.payload.TokenResponse;
+import com.example.autoluxe.payload.*;
 import com.example.autoluxe.repo.UserRepo;
 import com.example.autoluxe.security.TokenProvider;
 import com.example.autoluxe.service.*;
@@ -128,6 +125,7 @@ public class AuthController {
         user.setPhone(signUpRequest.getPhone());
         user.setPassword(encoder.encode(signUpRequest.getPassword()));
         user.setName(signUpRequest.getName());
+        user.setActive(true);
 
         user.setRole(Role.ROLE_ADMIN);
 
@@ -141,7 +139,7 @@ public class AuthController {
 
         registrationListener.onApplicationEvent(new RegistrationCompleteEvent(userAfterSaving,appUrl,request.getLocale()));
 
-        mailService.sendEmail(user, MailType.REGISTRATION, new Properties());
+
 
 
         return ResponseEntity.created(location)
@@ -174,13 +172,38 @@ public class AuthController {
         if(!refreshTokenValid)
             throw new AppException(HttpStatus.BAD_REQUEST, "Refresh token is invalid");
         Optional<Token> inDb = tokenService.findByToken(refresh);
+
         Token currentToken = inDb.get();
         if (Date.from(Instant.now()).after(currentToken.getDuration())) {
             tokenService.deleteToken(currentToken.getId());
         }
+
         String refreshToken = currentToken.getToken();
+        String newAccessToken = null;
+
         TokenResponse response = TokenResponse.builder().refreshToken(refreshToken).accessToken(null).build();
-        return ResponseEntity.ok(response);
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        addAccessTokenCookie(responseHeaders, newAccessToken);
+
+        return ResponseEntity.ok().headers(responseHeaders).body(response);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<LoginResponse> logout(
+            @CookieValue(name = "access_token", required = false) String accessToken,
+            @CookieValue(name = "refresh_token", required = false) String refreshToken) {
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+
+        responseHeaders.add(HttpHeaders.SET_COOKIE, cookieUtil.deleteAccessTokenCookie().toString());
+        responseHeaders.add(HttpHeaders.SET_COOKIE, cookieUtil.deleteRefreshTokenCookie().toString());
+
+        LoginResponse loginResponse = LoginResponse.builder()
+                .isLogged(false)
+                .role(null).build();
+
+        return ResponseEntity.ok().headers(responseHeaders).body(loginResponse);
     }
 
 

@@ -3,13 +3,14 @@ package com.example.autoluxe.controller;
 import com.example.autoluxe.domain.User;
 import com.example.autoluxe.domain.UserAccount;
 import com.example.autoluxe.dto.UserDto;
-import com.example.autoluxe.payload.ApiResponse;
-import com.example.autoluxe.payload.ChangeUserLoginRequest;
-import com.example.autoluxe.payload.ChangeUserNameRequest;
-import com.example.autoluxe.payload.ChangeUserPass;
+import com.example.autoluxe.payload.*;
+import com.example.autoluxe.payload.confirmbuy.ConfirmByAccountDto;
+import com.example.autoluxe.payload.getbuytoken.BuyTokenRequest;
 import com.example.autoluxe.payload.getbuytoken.GetByTokenRequest;
 import com.example.autoluxe.service.AccountService;
 import com.example.autoluxe.service.UserService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -46,20 +47,20 @@ public class ProfileController {
                                              @AuthenticationPrincipal User user) {
         userService.hideAccount(accountId,user.getId());
     }
-    @PatchMapping("/accounts/changeName/{id}")
+    @PatchMapping("/accounts/changename/{id}")
     public void changeName(@PathVariable(name = "id")Long accountId,
                                                   @AuthenticationPrincipal User user,
-                                                  @RequestBody ChangeUserNameRequest request) {
+                                                  @RequestBody UserNameRequest request) {
 
          userService.changeUserName(user.getId(),accountId,request);
     }
-    @PatchMapping("/accounts/changeLogin/{id}")
+    @PatchMapping("/accounts/changelogin/{id}")
     public void changeLogin(@PathVariable(name = "id")Long accountId,
                                                    @AuthenticationPrincipal User user,
-                                                   @RequestBody ChangeUserLoginRequest request) {
+                                                   @RequestBody UserLoginRequest request) {
          userService.changeUserLogin(user.getId(),accountId,request);
     }
-    @PatchMapping("/accounts/changePass/{id}")
+    @PatchMapping("/accounts/changepass/{id}")
     public void changePass(@PathVariable(name = "id")Long accountId,
                                                   @AuthenticationPrincipal User user,
                                                   @RequestBody ChangeUserPass request) {
@@ -71,12 +72,27 @@ public class ProfileController {
         userService.addSubUser(user.getId());
     }
 
-    @PatchMapping("/accounts/buy/{id}")
+    @PatchMapping(value = "/accounts/buy/{id}",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+    consumes = MediaType.APPLICATION_JSON_VALUE)
     public void buyAccount(@PathVariable(name = "id") Long id,
                            @AuthenticationPrincipal User user,
-                           @RequestBody GetByTokenRequest request) {
+                           @RequestBody BuyTokenRequest request) {
         userService.getByToken(user.getId(), id,request);
 
+    }
+
+    @PatchMapping(value = "/accounts/token/{id}",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> buy(@PathVariable(name = "id")Long id, @AuthenticationPrincipal User user,
+                                      @RequestBody BuyTokenRequest tokenRequest) {
+        return userService.ByToken(user.getId(), id,tokenRequest);
+    }
+
+    @PatchMapping("/accounts/confirm")
+    public void confirm(@AuthenticationPrincipal User user) throws JsonProcessingException {
+         userService.confirmBuy(user.getId());
     }
 
 

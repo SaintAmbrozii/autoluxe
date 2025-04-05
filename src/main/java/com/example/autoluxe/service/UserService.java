@@ -16,6 +16,7 @@ import com.example.autoluxe.payload.addsubuser.AddSubUserRequest;
 import com.example.autoluxe.payload.addsubuser.AddSubUserResponse;
 import com.example.autoluxe.payload.confirmbuy.ConfirmBuyRequest;
 import com.example.autoluxe.payload.confirmbuy.ConfirmByResponse;
+import com.example.autoluxe.payload.getbuytoken.BuyTokenRequest;
 import com.example.autoluxe.payload.getbuytoken.GetByTokenRequest;
 import com.example.autoluxe.payload.getbuytoken.GetByTokenResponse;
 import com.example.autoluxe.payload.getuseraccounts.GetUserAccountResponse;
@@ -23,13 +24,21 @@ import com.example.autoluxe.payload.getuseraccounts.GetUserAccounts;
 import com.example.autoluxe.payload.getusertoken.GetUserTokenRequest;
 import com.example.autoluxe.payload.getusertoken.GetUserTokenResponse;
 import com.example.autoluxe.payload.hideuseracc.HideAccRequest;
+import com.example.autoluxe.repo.AccountRepo;
 import com.example.autoluxe.repo.UserRepo;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -41,6 +50,8 @@ public class UserService {
 
     private static final String partner_token = "1e3972f9908c713356e9eb255947f148";
 
+    private static final HashMap<String,String> tokenmap = new HashMap<>();
+
 
     private final UserRepo userRepo;
     private final PasswordEncoder encoder;
@@ -48,17 +59,19 @@ public class UserService {
     private final GetUserAccountsListener getUserAccountsListener;
     private final PaymentService paymentService;
     private final BuyEpcTokenEventListener buyEpcTokenEventListener;
+    private final AccountRepo accountRepo;
 
     public UserService(UserRepo userRepo, PasswordEncoder encoder,
                        AccountService accountService,
                        GetUserAccountsListener getUserAccountsListener,
-                       PaymentService paymentService, BuyEpcTokenEventListener buyEpcTokenEventListener) {
+                       PaymentService paymentService, BuyEpcTokenEventListener buyEpcTokenEventListener, AccountRepo accountRepo) {
         this.userRepo = userRepo;
         this.encoder = encoder;
         this.accountService = accountService;
         this.getUserAccountsListener = getUserAccountsListener;
         this.paymentService = paymentService;
         this.buyEpcTokenEventListener = buyEpcTokenEventListener;
+        this.accountRepo = accountRepo;
     }
 
 
@@ -152,7 +165,7 @@ public class UserService {
         getUserAccountsListener.onApplicationEvent(new GetUserAccountsEvent(inDB.getId()));
     }
 
-    public void changeUserName(Long userId,Long accountId, ChangeUserNameRequest request) {
+    public void changeUserName(Long userId,Long accountId, UserNameRequest userNameRequest) {
         User inDB = userRepo.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
@@ -163,9 +176,9 @@ public class UserService {
 
         String epcId = String.valueOf(account.getEpcId());
 
-        request = ChangeUserNameRequest.builder()
+       ChangeUserNameRequest request = ChangeUserNameRequest.builder()
                 .epc_id(epcId)
-                .name(request.getName())
+                .name(userNameRequest.getName())
                 .token(inDB.getEpic_token()).build();
 
         client.
@@ -179,7 +192,7 @@ public class UserService {
 
     }
 
-    public void changeUserLogin(Long userId,Long accountId, ChangeUserLoginRequest request) {
+    public void changeUserLogin(Long userId,Long accountId, UserLoginRequest loginRequest) {
         User inDB = userRepo.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
@@ -190,9 +203,9 @@ public class UserService {
 
         String epcId = String.valueOf(account.getEpcId());
 
-        request = ChangeUserLoginRequest.builder()
+        ChangeUserLoginRequest request = ChangeUserLoginRequest.builder()
                 .epc_id(epcId)
-                .login(request.getLogin())
+                .login(loginRequest.getLogin())
                 .token(inDB.getEpic_token()).build();
 
         client.
@@ -207,7 +220,7 @@ public class UserService {
 
     }
 
-    public void changeUserPass(Long userId,Long accountId, ChangeUserPass request) {
+    public void changeUserPass(Long userId,Long accountId, ChangeUserPass userPass) {
         User inDB = userRepo.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
@@ -218,9 +231,9 @@ public class UserService {
 
         String epcId = String.valueOf(account.getEpcId());
 
-        request = ChangeUserPass.builder()
+        ChangeUserPass request = ChangeUserPass.builder()
                 .epc_id(epcId)
-                .pass(request.getPass())
+                .pass(userPass.getPass())
                 .token(inDB.getEpic_token()).build();
 
         client.
@@ -235,7 +248,7 @@ public class UserService {
 
     }
 
-    public void getByToken (Long userId,Long accountId, GetByTokenRequest request) {
+    public void getByToken (Long userId, Long accountId, BuyTokenRequest buyTokenRequest) {
 
         User inDB = userRepo.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
@@ -243,15 +256,16 @@ public class UserService {
         UserAccount account = accountService.findById(accountId)
                 .orElseThrow(()->new NotFoundException("AccountNotFound"));
 
+
         RestClient client = RestClient.create();
 
         Integer epcId = account.getEpcId();
 
-        request = GetByTokenRequest.builder()
+       GetByTokenRequest request = GetByTokenRequest.builder()
                 .token(inDB.getEpic_token())
-                .products(request.getProducts())
+                .products(buyTokenRequest.getParam())
                 .user_ids(String.valueOf(epcId))
-                .days(request.getDays()).build();
+                .days(buyTokenRequest.getDays()).build();
 
         GetByTokenResponse response = client.
                 post().
@@ -260,10 +274,124 @@ public class UserService {
                 retrieve()
                 .body(GetByTokenResponse.class);
 
-        buyEpcTokenEventListener.onApplicationEvent(new BuyEpcTokenEvent(response.getToken(),inDB.getEpic_token()));
+           buyEpcTokenEventListener.onApplicationEvent(new BuyEpcTokenEvent(response.getToken(),inDB.getEpic_token()));
 
 
     }
+
+    public ResponseEntity<String> ByToken (Long userId, Long accountId, BuyTokenRequest buyTokenRequest) {
+
+        User inDB = userRepo.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        UserAccount account = accountService.findById(accountId)
+                .orElseThrow(()->new NotFoundException("AccountNotFound"));
+
+
+        RestClient client = RestClient.create();
+
+        Integer epcId = account.getEpcId();
+
+        GetByTokenRequest request = GetByTokenRequest.builder()
+                .token(inDB.getEpic_token())
+                .products(buyTokenRequest.getParam())
+                .user_ids(String.valueOf(epcId))
+                .days(buyTokenRequest.getDays()).build();
+
+        GetByTokenResponse response = client.
+                post().
+                uri(EPIC_URI + "get_buy_token").
+                body(request).
+                retrieve()
+                .body(GetByTokenResponse.class);
+
+        tokenmap.put(inDB.getEpic_token(),response.getToken());
+
+  //      ConfirmBuyRequest confirmBuyRequest = ConfirmBuyRequest.
+  //              builder()
+  //              .token(inDB.getEpic_token())
+  //              .Btoken(response.getToken()).build();
+//
+  ///      ConfirmByResponse byResponse = client.
+  //              post().
+  //              uri(EPIC_URI + "confirm_buy").
+  //              body(request).
+  //              retrieve()
+  ////              .body(ConfirmByResponse.class);
+
+  //      List<UserAccount> accounts = byResponse.getByAccountDtoList().stream().map(a-> {
+  //          account.setLogin(a.getLogin());
+  //          account.setPass(a.getPass());
+  //          account.setRFCExpires(a.getExpires());
+  //          accountRepo.save(account);
+
+  //          return account;
+   //     }).collect(Collectors.toList());
+
+       return ResponseEntity.ok(response.getToken());
+
+
+    }
+
+    public void confirmBuy (Long userId) throws JsonProcessingException {
+
+        User inDB = userRepo.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        String Btoken = tokenmap.get(inDB.getEpic_token());
+
+
+        RestClient client = RestClient.create();
+
+        ConfirmBuyRequest request = ConfirmBuyRequest.
+                builder()
+                .token(inDB.getEpic_token())
+                .Btoken(Btoken).build();
+
+
+
+
+        ObjectMapper mapper = new ObjectMapper();
+// Jackson игнорирует невидимых злоумышленников
+        mapper.configure(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS.mappedFeature(), true);
+        mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES,true);
+
+
+        Gson gson = new Gson();
+
+        String response = client.
+                post().
+                uri(EPIC_URI + "confirm_buy")
+                .body(request)
+                .retrieve()
+                .body(String.class);
+
+
+
+        System.out.println(response);
+
+
+        ConfirmByResponse byResponse = mapper.readValue(removeQuotesAndUnescap(response),ConfirmByResponse.class);
+
+        List<UserAccount> toEntity = byResponse.getByAccountDtoList().stream().map(a-> {
+            UserAccount account = accountService.findByEpcId(a.getEpc_id()).orElseThrow();
+            account.setLogin(a.getLogin());
+            account.setPass(a.getPass());
+            account.setRFCExpires(a.getExpires());
+            return accountRepo.save(account);
+        }).collect(Collectors.toList());
+
+
+
+    }
+
+    private String removeQuotesAndUnescap(String unclean) {
+        String noQuotes = unclean.replaceAll("(?<!^)\\*+(?!$)", "");
+
+        return StringEscapeUtils.unescapeJava(noQuotes);
+    }
+
+
 
 
 
@@ -311,7 +439,7 @@ public class UserService {
     @Transactional
     public UserDto addBalance(Long id, Double balance) {
         User inDB = userRepo.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
-        inDB.setBalance(balance);
+        inDB.setBalance(BigDecimal.valueOf(balance));
         Payments payments = new Payments();
         payments.setCreated(LocalDateTime.now());
         payments.setManagerId(32L);
@@ -335,6 +463,27 @@ public class UserService {
         inDB.setName(user.getName());
         inDB.setPassword(encoder.encode(user.getPassword()));
         return UserDto.toDto(inDB);
+    }
+
+    private Double calculate(List<Integer> params, Integer days) {
+       if (params.contains(84) && days == 30) {
+           return 5500.00;
+       }
+       if (params.contains(84) && days == 90) {
+           return 15500.00;
+       }
+       if (params.contains(84)&& days == 180) {
+           return 36000.00;
+       }
+       if (params.contains(84) && days == 365) {
+           return 54000.00;
+
+       }if (params.contains(84) && params.contains(133) & days == 30) {
+           return 6500.00;
+        }
+       else {
+           return null;
+       }
     }
 
 

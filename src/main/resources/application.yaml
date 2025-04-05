@@ -1,5 +1,8 @@
 
 spring:
+  freemarker:
+    settings:
+      classic_compatible: true
   main:
     allow-circular-references: true
   datasource:

@@ -1,6 +1,7 @@
 package com.example.autoluxe.payload.confirmbuy;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,11 +10,15 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ConfirmByAccountDto {
 
+
     private Integer epc_id;
+
 
     private String login;
 
+
     private String pass;
+
 
     private String expires;
 }

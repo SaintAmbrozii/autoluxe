@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Токен подтверждения регистрации ${name}</title>
+    <title>Токен подтверждения регистрации ${email}</title>
     <style>
         #body {
             display: flex;
@@ -33,11 +33,13 @@
 <body>
 <div id="body">
     <div id="div">
+
+
         <h1 style="text-align: center">Registration</h1>
-        <p>Здравствуйте, ${name}!</p>
+        <p>Здравствуйте ${name}!</p>
         <p>Внесите токен в форму подтверждения на сайте</p>
-        <p>Токен регистрации, ${token}!</p>
-        <p>Перейдите по адресу подтверждения, ${confirm_url}</p>
+        <p>Токен регистрации ${token}!</p>
+        <p>Перейдите по адресу подтверждения ${confirm_url}</p>
     </div>
 </div>
 </body>

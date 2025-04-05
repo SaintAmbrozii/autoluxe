@@ -110,6 +110,8 @@ public class SecurityConfig {
                                 .hasAnyAuthority("ROLE_ADMIN","ROLE_USER")
                                 .requestMatchers("/api/accounts/**")
                                 .hasAuthority("ROLE_ADMIN")
+                                .requestMatchers("/api/payments/**")
+                                .hasAuthority("ROLE_ADMIN")
                                 .anyRequest().authenticated())
                 .logout(logout->logout.addLogoutHandler(logoutService)
                         .logoutUrl("api/users/auth/logout")
