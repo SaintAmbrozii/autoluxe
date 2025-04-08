@@ -46,13 +46,14 @@ public class RegistrationListener implements ApplicationListener<RegistrationCom
 
         String confirmationUrl
                 = event.getAppUrl() + "/regitrationConfirm?token=" + token;
-      //  String message = messageSource.getMessage("message.regSucc", null, event.getLocale());
+     //  String message = messageSource.getMessage("message.regSucc", null, event.getLocale());
 
     //    Properties props = new Properties();
     //    props.setProperty("token", token);
     //    props.setProperty("confirm_url",message + "\r\n" + confirmationUrl);
 
-    //    try {
+        mailService.sendTemplateEmail(MailType.REGISTRATION,user,confirmationUrl);
+    //    t ry {
      //       mailService.sendEmail(user.getEmail(),mailService.registerEmail(user.getName(),confirmationUrl),"Verify your email");
     //    } catch (IOException e) {
    //         e.printStackTrace();

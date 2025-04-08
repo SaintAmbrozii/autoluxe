@@ -6,10 +6,9 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Data
-@NoArgsConstructor
 public class BuyTokenRequest {
 
-    private String param;
+    private Integer param;
 
     private Integer days;
 }

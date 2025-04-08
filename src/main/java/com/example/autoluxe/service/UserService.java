@@ -256,14 +256,13 @@ public class UserService {
         UserAccount account = accountService.findById(accountId)
                 .orElseThrow(()->new NotFoundException("AccountNotFound"));
 
-
         RestClient client = RestClient.create();
 
         Integer epcId = account.getEpcId();
 
        GetByTokenRequest request = GetByTokenRequest.builder()
                 .token(inDB.getEpic_token())
-                .products(buyTokenRequest.getParam())
+                .products(String.valueOf(buyTokenRequest.getParam()))
                 .user_ids(String.valueOf(epcId))
                 .days(buyTokenRequest.getDays()).build();
 
@@ -276,122 +275,7 @@ public class UserService {
 
            buyEpcTokenEventListener.onApplicationEvent(new BuyEpcTokenEvent(response.getToken(),inDB.getEpic_token()));
 
-
     }
-
-    public ResponseEntity<String> ByToken (Long userId, Long accountId, BuyTokenRequest buyTokenRequest) {
-
-        User inDB = userRepo.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found"));
-
-        UserAccount account = accountService.findById(accountId)
-                .orElseThrow(()->new NotFoundException("AccountNotFound"));
-
-
-        RestClient client = RestClient.create();
-
-        Integer epcId = account.getEpcId();
-
-        GetByTokenRequest request = GetByTokenRequest.builder()
-                .token(inDB.getEpic_token())
-                .products(buyTokenRequest.getParam())
-                .user_ids(String.valueOf(epcId))
-                .days(buyTokenRequest.getDays()).build();
-
-        GetByTokenResponse response = client.
-                post().
-                uri(EPIC_URI + "get_buy_token").
-                body(request).
-                retrieve()
-                .body(GetByTokenResponse.class);
-
-        tokenmap.put(inDB.getEpic_token(),response.getToken());
-
-  //      ConfirmBuyRequest confirmBuyRequest = ConfirmBuyRequest.
-  //              builder()
-  //              .token(inDB.getEpic_token())
-  //              .Btoken(response.getToken()).build();
-//
-  ///      ConfirmByResponse byResponse = client.
-  //              post().
-  //              uri(EPIC_URI + "confirm_buy").
-  //              body(request).
-  //              retrieve()
-  ////              .body(ConfirmByResponse.class);
-
-  //      List<UserAccount> accounts = byResponse.getByAccountDtoList().stream().map(a-> {
-  //          account.setLogin(a.getLogin());
-  //          account.setPass(a.getPass());
-  //          account.setRFCExpires(a.getExpires());
-  //          accountRepo.save(account);
-
-  //          return account;
-   //     }).collect(Collectors.toList());
-
-       return ResponseEntity.ok(response.getToken());
-
-
-    }
-
-    public void confirmBuy (Long userId) throws JsonProcessingException {
-
-        User inDB = userRepo.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found"));
-
-        String Btoken = tokenmap.get(inDB.getEpic_token());
-
-
-        RestClient client = RestClient.create();
-
-        ConfirmBuyRequest request = ConfirmBuyRequest.
-                builder()
-                .token(inDB.getEpic_token())
-                .Btoken(Btoken).build();
-
-
-
-
-        ObjectMapper mapper = new ObjectMapper();
-// Jackson игнорирует невидимых злоумышленников
-        mapper.configure(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS.mappedFeature(), true);
-        mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES,true);
-
-
-        Gson gson = new Gson();
-
-        String response = client.
-                post().
-                uri(EPIC_URI + "confirm_buy")
-                .body(request)
-                .retrieve()
-                .body(String.class);
-
-
-
-        System.out.println(response);
-
-
-        ConfirmByResponse byResponse = mapper.readValue(removeQuotesAndUnescap(response),ConfirmByResponse.class);
-
-        List<UserAccount> toEntity = byResponse.getByAccountDtoList().stream().map(a-> {
-            UserAccount account = accountService.findByEpcId(a.getEpc_id()).orElseThrow();
-            account.setLogin(a.getLogin());
-            account.setPass(a.getPass());
-            account.setRFCExpires(a.getExpires());
-            return accountRepo.save(account);
-        }).collect(Collectors.toList());
-
-
-
-    }
-
-    private String removeQuotesAndUnescap(String unclean) {
-        String noQuotes = unclean.replaceAll("(?<!^)\\*+(?!$)", "");
-
-        return StringEscapeUtils.unescapeJava(noQuotes);
-    }
-
-
 
 
 
@@ -429,8 +313,6 @@ public class UserService {
     }
 
 
-
-
     public UserDto findById(Long id) {
         User inDB = userRepo.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
         return UserDto.toDto(inDB);
@@ -444,17 +326,13 @@ public class UserService {
         payments.setCreated(LocalDateTime.now());
         payments.setManagerId(32L);
         payments.setUserId(inDB.getId());
-        payments.setSumma(balance);
+        payments.setSumma(BigDecimal.valueOf(balance));
         payments.setPayAdmin(true);
         paymentService.save(payments);
 
         return UserDto.toDto(inDB);
     }
 
-    public AdminDto getProfile(Long id) {
-        User inDB = userRepo.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
-        return AdminDto.toDto(inDB);
-    }
 
     public UserDto updateUser (Long id, User user) {
         User inDB = userRepo.
@@ -466,7 +344,15 @@ public class UserService {
     }
 
     private Double calculate(List<Integer> params, Integer days) {
-       if (params.contains(84) && days == 30) {
+        // params
+        //4 - AutoData
+        //72 - TecDoc
+       // 84 - полный
+      //  129 - TIS
+      //  132 - легковой
+     //   133 - грузовой
+     //   134 - TechData
+        if (params.contains(84) && days == 30) {
            return 5500.00;
        }
        if (params.contains(84) && days == 90) {
@@ -477,10 +363,56 @@ public class UserService {
        }
        if (params.contains(84) && days == 365) {
            return 54000.00;
-
-       }if (params.contains(84) && params.contains(133) & days == 30) {
+       }
+       if (params.contains(84) && params.contains(4) | params.contains(134) | params.contains(72) & days == 30) {
            return 6500.00;
         }
+        if (params.contains(84) && params.contains(4) | params.contains(134) | params.contains(72) & days == 90) {
+            return 18000.00;
+        }
+        if (params.contains(84) && params.contains(4) | params.contains(134) | params.contains(72) & days == 180) {
+            return 34800.00;
+        }
+        if (params.contains(84) && params.contains(4) | params.contains(134) | params.contains(72) & days == 365) {
+            return 66000.00;
+        }
+        if (params.contains(84) && params.contains(72) && params.contains(134) | params.contains(4) & days == 30) {
+            return 7500.00;
+        }
+        if (params.contains(84) && params.contains(4) && params.contains(134) | params.contains(72) & days == 30) {
+            return 7500.00;
+        }
+        if (params.contains(84) && params.contains(72) && params.contains(134) | params.contains(4) & days == 90) {
+            return 21000.00;
+        }
+        if (params.contains(84) && params.contains(4) && params.contains(134) | params.contains(72) & days == 90) {
+            return 21000.00;
+        }
+        if (params.contains(84) && params.contains(72) && params.contains(134) | params.contains(4) & days == 180) {
+            return 40800.00;
+        }
+        if (params.contains(84) && params.contains(4) && params.contains(134) | params.contains(72) & days == 180) {
+            return 40800.00;
+        }
+        if (params.contains(84) && params.contains(72) && params.contains(134) | params.contains(4) & days == 365) {
+            return 76000.00;
+        }
+        if (params.contains(84) && params.contains(4) && params.contains(134) | params.contains(72) & days == 365) {
+            return 76000.00;
+        }
+        if(params.contains(84) && params.contains(4) && params.contains(134) && params.contains(72) & days == 30) {
+            return 8500.00;
+        }
+        if(params.contains(84) && params.contains(4) && params.contains(134) && params.contains(72) & days == 90) {
+            return 24000.00;
+        }
+        if(params.contains(84) && params.contains(4) && params.contains(134) && params.contains(72) & days == 180) {
+            return 46800.00;
+        }
+        if(params.contains(84) && params.contains(4) && params.contains(134) && params.contains(72) & days == 365) {
+            return 88000.00;
+        }
+
        else {
            return null;
        }

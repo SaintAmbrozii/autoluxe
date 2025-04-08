@@ -52,7 +52,7 @@ public class TokenAuthentificationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        String token = getJwtToken(request,true);
+        String token = getJwtToken(request,false);
                 //    resolveToken(request);
         if (StringUtils.hasText(token) && this.tokenProvider.validateToken(token)) {
 

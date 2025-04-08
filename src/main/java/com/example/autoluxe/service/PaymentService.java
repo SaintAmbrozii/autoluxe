@@ -1,7 +1,10 @@
 package com.example.autoluxe.service;
 
 import com.example.autoluxe.domain.Payments;
+import com.example.autoluxe.dto.PaymentDto;
 import com.example.autoluxe.repo.PaymentRepo;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,13 +18,11 @@ public class PaymentService {
         this.paymentRepo = paymentRepo;
     }
 
-    public List<Payments> findAll() {
+    public List<Payments> findAll(Pageable pageable) {
         return paymentRepo.findAll();
     }
 
-    public List<Payments> findAllAdmin() {
-        return paymentRepo.findAllByPayAdminIsTrue();
-    }
+
 
     public Payments save(Payments payments) {
         return paymentRepo.save(payments);

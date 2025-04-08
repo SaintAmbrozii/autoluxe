@@ -5,6 +5,7 @@ import jakarta.persistence.Column;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -21,7 +22,7 @@ public class PaymentDto {
 
     private LocalDateTime created;
 
-    private Double summa;
+    private BigDecimal summa;
 
     public static PaymentDto toDto(Payments payments) {
         PaymentDto paymentDto = new PaymentDto();

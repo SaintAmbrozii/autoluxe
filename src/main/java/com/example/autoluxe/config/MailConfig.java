@@ -1,10 +1,15 @@
 package com.example.autoluxe.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.templatemode.TemplateMode;
+import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
+import org.thymeleaf.templateresolver.ITemplateResolver;
 
 @Configuration
 @RequiredArgsConstructor
@@ -23,6 +28,7 @@ public class MailConfig {
         mailSender.getJavaMailProperties();
         return mailSender;
     }
+
 
 
 

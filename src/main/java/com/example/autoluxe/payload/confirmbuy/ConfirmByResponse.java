@@ -12,5 +12,5 @@ import java.util.List;
 public class ConfirmByResponse {
 
     @JsonProperty
-    private List<ConfirmByAccountDto> byAccountDtoList;
+    private List<ConfirmByAccountDto> accounts;
 }

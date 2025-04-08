@@ -20,11 +20,6 @@ public class AdminDto {
 
     private String email;
 
-    private String password;
-
-    private String epic_token;
-
-    private String partner_token;
 
     public static AdminDto toDto(User user) {
         AdminDto dto = new AdminDto();
@@ -32,9 +27,6 @@ public class AdminDto {
         dto.setEmail(user.getEmail());
         dto.setName(user.getName());
         dto.setPhone(user.getPhone());
-        dto.setEpic_token(user.getEpic_token());
-        dto.setPartner_token(user.getPartner_token());
-        dto.setPassword(user.getPassword());
         return dto;
     }
 }

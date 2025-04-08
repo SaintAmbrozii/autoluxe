@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Getter
@@ -18,11 +19,11 @@ public class UserDto {
 
     private String email;
 
-    private String password;
+    private BigDecimal balance;
 
     private String phone;
 
-    private String token;
+
 
 
     
@@ -32,8 +33,7 @@ public class UserDto {
         dto.setEmail(user.getEmail());
         dto.setName(user.getName());
         dto.setPhone(user.getPhone());
-        dto.setToken(user.getEpic_token());
-        dto.setPassword(user.getPassword());
+        dto.setBalance(user.getBalance());
         return dto;
     }
 }

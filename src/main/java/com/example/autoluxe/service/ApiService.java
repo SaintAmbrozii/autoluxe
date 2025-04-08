@@ -12,33 +12,31 @@ import com.example.autoluxe.payload.getuseraccounts.GetUserAccountResponse;
 import com.example.autoluxe.payload.getuseraccounts.GetUserAccounts;
 import com.example.autoluxe.payload.getusertoken.GetUserTokenRequest;
 import com.example.autoluxe.payload.getusertoken.GetUserTokenResponse;
+import com.example.autoluxe.repo.AccountRepo;
 import com.example.autoluxe.repo.UserRepo;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.glassfish.jaxb.runtime.api.TypeReference;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestTemplate;
 
-import java.lang.reflect.ParameterizedType;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class ApiService {
 
 
     private final UserRepo userRepo;
+    private final AccountRepo accountRepo;
     private final AccountService accountService;
 
 
-    public ApiService(UserRepo userRepo, AccountService accountService) {
+    public ApiService(UserRepo userRepo, AccountRepo accountRepo, AccountService accountService) {
         this.userRepo = userRepo;
+        this.accountRepo = accountRepo;
         this.accountService = accountService;
     }
 
@@ -78,20 +76,25 @@ public class ApiService {
 
         RestClient client = RestClient.create();
 
+
         GetUserAccounts request = GetUserAccounts.
                 builder()
                 .token(inDB.getEpic_token()).build();
 
+
         GetUserAccountResponse response = client.
                 post().
                 uri(EPIC_URI + "get_user_accounts").
-                body(request).
+                accept(MediaType.APPLICATION_JSON).
+                contentType(MediaType.APPLICATION_JSON)
+                .body(request).
                 retrieve()
                 .body(GetUserAccountResponse.class);
-        List<UserAccount> current = accountService.findAllByUserId(inDB.getId());
 
-        if (current.isEmpty()) {
-            List<UserAccount> accounts = response.getAccounts().stream().map(a-> {
+        List<UserAccount> accounts = accountRepo.findAllByUserId(inDB.getId());
+
+        if (accounts.isEmpty()) {
+            List<UserAccount> current = response.getAccounts().stream().map(a-> {
                 UserAccount account = new UserAccount();
                 account.setEpcId(a.getId());
                 account.setLogin(a.getName());
@@ -103,9 +106,9 @@ public class ApiService {
                 account.setUserId(inDB.getId());
                 return account;
             }).collect(Collectors.toList());
-
-            accountService.accountSaveList(accounts);
+            accountService.accountSaveList(current);
         }
+
 
         return ResponseEntity.ok(response);
 
@@ -113,76 +116,36 @@ public class ApiService {
 
     public void confirmBuy (String Btoken, String usertoken) {
 
-
         RestClient client = RestClient.create();
 
         ConfirmBuyRequest request = ConfirmBuyRequest.
                 builder()
                 .token(usertoken)
-                .Btoken(Btoken).build();
+                .btoken(Btoken).build();
 
-        ParameterizedTypeReference<List<ConfirmByAccountDto>> confirmList = new ParameterizedTypeReference<List<ConfirmByAccountDto>>() {
-            @Override
-            public boolean equals(Object other) {
-                return super.equals(other);
-            }
-        };
+        System.out.println(request);
 
-        ObjectMapper mapper = new ObjectMapper();
-
-
-        String response = client.
+        ConfirmByResponse response = client.
                 post().
                 uri(EPIC_URI + "confirm_buy").
                 body(request)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .body(String.class);
+                .body(ConfirmByResponse.class);
 
+        List<UserAccount> toEntity = response.getAccounts().stream().map(a-> {
+            UserAccount account = new UserAccount();
+            account.setEpcId(a.getEpc_id());
+            account.setLogin(a.getLogin());
+            account.setPass(a.getPass());
+            account.setRFCExpires(a.getExpires());
+           return account;
+        }).collect(Collectors.toList());
 
-    //    List<UserAccount> accounts = response.getByAccountDtoList().stream().map(a-> {
-    //        UserAccount account = new UserAccount();
-   ///         account.setEpcId(a.getEpc_id());
-    //        account.setLogin(a.getLogin());
-    //        account.setPass(a.getPass());
-    //        account.setRFCExpires(a.getExpires());
-
-    //        return account;
-     //   }).collect(Collectors.toList());
-
-
+        accountService.accountSaveList(toEntity);
 
     }
 
-    public void confirm (String Btoken, String usertoken) {
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES,true);
-
-        RestClient client = RestClient.create();
-
-        ConfirmBuyRequest request = ConfirmBuyRequest.
-                builder()
-                .token(usertoken)
-                .Btoken(Btoken).build();
-
-        List<ConfirmByAccountDto> response = client.
-                post().
-                uri(EPIC_URI + "confirm_buy").
-                exchange((clientRequest, clientResponse) -> {
-                    if (clientResponse.getStatusCode().isSameCodeAs(HttpStatusCode.valueOf(404))) {
-                        throw new ApiTokenNotFoundException("сервер не отвечает");
-                    }
-                    else if (clientResponse.getStatusCode().isSameCodeAs(HttpStatusCode.valueOf(200))) {
-                        return mapper.readValue(clientResponse.getBody(), ConfirmByResponse.class);
-                    } else {
-                        throw new ApiMethodException("");
-                    }
-                }).getByAccountDtoList();
-
-
-      //  accountService.accountSaveList(accounts);
-
-    }
 }

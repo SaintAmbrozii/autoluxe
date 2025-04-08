@@ -13,12 +13,9 @@ public class ConfirmByAccountDto {
 
     private Integer epc_id;
 
-
     private String login;
 
-
     private String pass;
-
 
     private String expires;
 }

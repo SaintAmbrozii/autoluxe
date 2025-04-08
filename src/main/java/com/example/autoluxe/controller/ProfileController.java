@@ -82,19 +82,6 @@ public class ProfileController {
 
     }
 
-    @PatchMapping(value = "/accounts/token/{id}",
-            produces = MediaType.APPLICATION_JSON_VALUE,
-            consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> buy(@PathVariable(name = "id")Long id, @AuthenticationPrincipal User user,
-                                      @RequestBody BuyTokenRequest tokenRequest) {
-        return userService.ByToken(user.getId(), id,tokenRequest);
-    }
-
-    @PatchMapping("/accounts/confirm")
-    public void confirm(@AuthenticationPrincipal User user) throws JsonProcessingException {
-         userService.confirmBuy(user.getId());
-    }
-
 
 
 }

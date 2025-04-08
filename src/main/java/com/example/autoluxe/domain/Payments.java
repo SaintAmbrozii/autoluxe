@@ -3,6 +3,7 @@ package com.example.autoluxe.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -25,7 +26,7 @@ public class Payments {
     @Column(name = "created")
     private LocalDateTime created;
     @Column(name = "summa")
-    private Double summa;
+    private BigDecimal summa;
 
     private boolean payAdmin;
 }

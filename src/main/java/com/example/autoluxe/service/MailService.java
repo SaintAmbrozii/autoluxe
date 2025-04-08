@@ -1,6 +1,11 @@
 package com.example.autoluxe.service;
 
+import com.example.autoluxe.config.MailConfig;
+import com.example.autoluxe.config.MailProperties;
+import com.example.autoluxe.domain.MailType;
+import com.example.autoluxe.domain.User;
 import freemarker.template.Configuration;
+import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -15,38 +20,49 @@ import java.util.Map;
 @Slf4j
 public class MailService {
 
-    private final Configuration configuration;
+
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
-    public static final String NEW_USER_ACCOUNT_VERIFICATION = "new user account verification";
 
-    public MailService(Configuration configuration,
-                       JavaMailSender mailSender, TemplateEngine templateEngine) {
-        this.configuration = configuration;
+
+    public MailService(JavaMailSender mailSender, TemplateEngine templateEngine) {
         this.mailSender = mailSender;
         this.templateEngine = templateEngine;
     }
 
-    public void sendHtmlEmail(String name, String to, String token) {
-        try{
-            Context context = new Context();
-            context.setVariable("name" , name);
-         //   context.setVariable("url" , getVerificationUrl(host,token));
-        //    context.setVariables(Map.of("name" , name  ,"url" , getVerificationUrl(host,token)) );
-            String text = templateEngine.process("emailTemplate" , context);
-       //     MimeMessage message = getMimeMessage();
-        //    MimeMessageHelper helper = new MimeMessageHelper(message , true ,"UTF-8");
-      //      helper.setPriority(1);
-      //      helper.setSubject(NEW_USER_ACCOUNT_VERIFICATION);
-       //     helper.setFrom(fromEmail);
-      //      helper.setTo(to);
-      //      helper.setText(text,true);
-        //    mailSender.send(message);
+    public void sendTemplateEmail(MailType type, User user, String link)  {
+
+        // MailConfig.EmailTemplate template =
+     //           emailProperties.getTemplates().get(type.toString());
 
 
-        }catch (Exception exception){
-            System.out.println(exception.getMessage());
-            throw  new RuntimeException(exception.getMessage());
+
+        Context context = new Context();
+  //      String welcomeText = template.getWelcomeText().replace("${name}", user.getName());
+  //      context.setVariable("welcomeText", welcomeText);
+ //      context.setVariable("text1", template.getText1());
+  //      context.setVariable("link", link);
+   //     context.setVariable("text2", template.getText2());
+
+    //    String email = this.templateEngine.process(template.getTemplate(), context);
+
+   ////     send(user.getEmail(), template, email);
+    }
+
+
+    public void send(final String to, final String subject, final String email) {
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper =
+                    new MimeMessageHelper(mimeMessage, "utf-8");
+         //   helper.setFrom(emailProperties.getSender().getEmail());
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(email, true);mailSender.send(mimeMessage);
+
+        } catch (MessagingException e){
+
+            throw new IllegalStateException("Failed to send email");
         }
     }
 
