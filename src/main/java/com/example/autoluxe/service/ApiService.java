@@ -135,8 +135,8 @@ public class ApiService {
                 .body(ConfirmByResponse.class);
 
         List<UserAccount> toEntity = response.getAccounts().stream().map(a-> {
-            UserAccount account = new UserAccount();
-            account.setEpcId(a.getEpc_id());
+            UserAccount account = accountRepo.
+                    findUserAccountByEpcId(a.getEpc_id()).orElseThrow();
             account.setLogin(a.getLogin());
             account.setPass(a.getPass());
             account.setRFCExpires(a.getExpires());
