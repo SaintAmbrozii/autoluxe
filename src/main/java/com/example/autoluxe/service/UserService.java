@@ -4,18 +4,21 @@ package com.example.autoluxe.service;
 import com.example.autoluxe.domain.Payments;
 import com.example.autoluxe.domain.User;
 import com.example.autoluxe.domain.UserAccount;
-import com.example.autoluxe.dto.AdminDto;
+import com.example.autoluxe.dto.UserAccountDto;
 import com.example.autoluxe.dto.UserDto;
 import com.example.autoluxe.events.BuyEpcTokenEvent;
 import com.example.autoluxe.events.BuyEpcTokenEventListener;
 import com.example.autoluxe.events.GetUserAccountsEvent;
 import com.example.autoluxe.events.GetUserAccountsListener;
 import com.example.autoluxe.exception.NotFoundException;
-import com.example.autoluxe.payload.*;
+import com.example.autoluxe.payload.addbalance.AddBalance;
 import com.example.autoluxe.payload.addsubuser.AddSubUserRequest;
 import com.example.autoluxe.payload.addsubuser.AddSubUserResponse;
-import com.example.autoluxe.payload.confirmbuy.ConfirmBuyRequest;
-import com.example.autoluxe.payload.confirmbuy.ConfirmByResponse;
+import com.example.autoluxe.payload.changelogin.ChangeUserLoginRequest;
+import com.example.autoluxe.payload.changelogin.UserLoginRequest;
+import com.example.autoluxe.payload.changename.ChangeUserNameRequest;
+import com.example.autoluxe.payload.changename.UserNameRequest;
+import com.example.autoluxe.payload.changepass.ChangeUserPass;
 import com.example.autoluxe.payload.getbuytoken.BuyTokenRequest;
 import com.example.autoluxe.payload.getbuytoken.GetByTokenRequest;
 import com.example.autoluxe.payload.getbuytoken.GetByTokenResponse;
@@ -26,13 +29,6 @@ import com.example.autoluxe.payload.getusertoken.GetUserTokenResponse;
 import com.example.autoluxe.payload.hideuseracc.HideAccRequest;
 import com.example.autoluxe.repo.AccountRepo;
 import com.example.autoluxe.repo.UserRepo;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.json.JsonReadFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import org.apache.commons.text.StringEscapeUtils;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -136,7 +132,11 @@ public class UserService {
                 retrieve()
                 .body(AddSubUserResponse.class);
 
-        getUserAccountsListener.onApplicationEvent(new GetUserAccountsEvent(inDB.getId()));
+        UserAccount account = new UserAccount();
+        account.setEpcId(response.getEpc_id());
+        accountRepo.save(account);
+
+      //  getUserAccountsListener.onApplicationEvent(new GetUserAccountsEvent(inDB.getId()));
 
     }
 
@@ -162,10 +162,13 @@ public class UserService {
                 retrieve()
                 .toBodilessEntity();
 
-        getUserAccountsListener.onApplicationEvent(new GetUserAccountsEvent(inDB.getId()));
+        account.setHide(true);
+        accountRepo.save(account);
+
+    //    getUserAccountsListener.onApplicationEvent(new GetUserAccountsEvent(inDB.getId()));
     }
 
-    public void changeUserName(Long userId,Long accountId, UserNameRequest userNameRequest) {
+    public UserAccount changeUserName(Long userId, Long accountId, UserNameRequest userNameRequest) {
         User inDB = userRepo.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
@@ -188,11 +191,15 @@ public class UserService {
                 retrieve()
                 .toBodilessEntity();
 
-        getUserAccountsListener.onApplicationEvent(new GetUserAccountsEvent(inDB.getId()));
+        account.setName(userNameRequest.getName());
+
+        return accountRepo.save(account);
+
+    //    getUserAccountsListener.onApplicationEvent(new GetUserAccountsEvent(inDB.getId()));
 
     }
 
-    public void changeUserLogin(Long userId,Long accountId, UserLoginRequest loginRequest) {
+    public UserAccount changeUserLogin(Long userId,Long accountId, UserLoginRequest loginRequest) {
         User inDB = userRepo.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
@@ -215,12 +222,13 @@ public class UserService {
                 retrieve()
                 .toBodilessEntity();
 
-        getUserAccountsListener.onApplicationEvent(new GetUserAccountsEvent(inDB.getId()));
-
+        account.setLogin(loginRequest.getLogin());
+       return accountRepo.save(account);
+    //    getUserAccountsListener.onApplicationEvent(new GetUserAccountsEvent(inDB.getId()));
 
     }
 
-    public void changeUserPass(Long userId,Long accountId, ChangeUserPass userPass) {
+    public UserAccount changeUserPass(Long userId,Long accountId, ChangeUserPass userPass) {
         User inDB = userRepo.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
@@ -243,9 +251,9 @@ public class UserService {
                 retrieve()
                 .toBodilessEntity();
 
-        getUserAccountsListener.onApplicationEvent(new GetUserAccountsEvent(inDB.getId()));
-
-
+        account.setPass(userPass.getPass());
+      return   accountRepo.save(account);
+    //    getUserAccountsListener.onApplicationEvent(new GetUserAccountsEvent(inDB.getId()));
     }
 
     public void getByToken (Long userId, Long accountId, BuyTokenRequest buyTokenRequest) {
@@ -278,55 +286,20 @@ public class UserService {
     }
 
 
-
-    public void getUserAccount(Long userId){
-
-        User inDB = userRepo.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found"));
-
-        RestClient client = RestClient.create();
-
-        GetUserAccounts request = GetUserAccounts.
-                builder()
-                .token(inDB.getEpic_token()).build();
-
-        GetUserAccountResponse response = client.
-                post().
-                uri(EPIC_URI + "get_user_accounts").
-                body(request).
-                retrieve()
-                .body(GetUserAccountResponse.class);
-
-        List<UserAccount> accounts = response.getAccounts().stream().map(a-> {
-            UserAccount account = new UserAccount();
-            account.setADName(a.getAD_name());
-            account.setHide(a.isHide());
-            account.setRFCExpires(a.getRFC_expires());
-            account.setStatus(a.getStatus());
-            account.setPass(a.getPass());
-            return account;
-        }).collect(Collectors.toList());
-
-        accountService.accountSaveList(accounts);
-
-
-    }
-
-
     public UserDto findById(Long id) {
         User inDB = userRepo.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
         return UserDto.toDto(inDB);
     }
 
     @Transactional
-    public UserDto addBalance(Long id, Double balance) {
+    public UserDto addBalance(Long id, AddBalance balance) {
         User inDB = userRepo.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
-        inDB.setBalance(BigDecimal.valueOf(balance));
+        inDB.setBalance(BigDecimal.valueOf(balance.getBalance()));
         Payments payments = new Payments();
         payments.setCreated(LocalDateTime.now());
         payments.setManagerId(32L);
         payments.setUserId(inDB.getId());
-        payments.setSumma(BigDecimal.valueOf(balance));
+        payments.setSumma(BigDecimal.valueOf(balance.getBalance()));
         payments.setPayAdmin(true);
         paymentService.save(payments);
 

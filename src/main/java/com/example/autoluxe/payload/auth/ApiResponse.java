@@ -1,4 +1,4 @@
-package com.example.autoluxe.payload;
+package com.example.autoluxe.payload.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

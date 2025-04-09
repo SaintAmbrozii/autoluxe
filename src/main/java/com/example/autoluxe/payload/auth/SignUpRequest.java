@@ -1,4 +1,4 @@
-package com.example.autoluxe.payload;
+package com.example.autoluxe.payload.auth;
 
 import com.example.autoluxe.utils.validator.ValidEmail;
 import jakarta.validation.constraints.Max;

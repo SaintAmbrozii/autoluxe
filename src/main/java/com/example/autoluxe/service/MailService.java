@@ -8,6 +8,7 @@ import freemarker.template.Configuration;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,12 @@ import java.util.Map;
 public class MailService {
 
 
+    private static final String TEMPLATE_NAME = "emailTemplate";
+    private static final String SPRING_LOGO_IMAGE = "templates/images/spring.png";
+    private static final String PNG_MIME = "image/png";
+    private static final String MAIL_SUBJECT = "Registration Confirmation";
+    private static final String MAIL_FROM = "autoluxe@mail.ru";
+
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
 
@@ -30,23 +37,26 @@ public class MailService {
         this.templateEngine = templateEngine;
     }
 
-    public void sendTemplateEmail(MailType type, User user, String link)  {
+    public void sendTemplateEmail(MailType type, User user, String link) throws MessagingException {
 
-        // MailConfig.EmailTemplate template =
-     //           emailProperties.getTemplates().get(type.toString());
+        final MimeMessage mimeMessage = this.mailSender.createMimeMessage();
+        final MimeMessageHelper email = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+
+        email.setTo(user.getEmail());
+        email.setSubject(MAIL_SUBJECT);
+        email.setFrom(MAIL_FROM);
+
+        final Context ctx = new Context(LocaleContextHolder.getLocale());
+        ctx.setVariable("email", user.getEmail());
+        ctx.setVariable("name", user.getName());
+        ctx.setVariable("url", link);
+
+        final String htmlContent = this.templateEngine.process(TEMPLATE_NAME, ctx);
+
+        email.setText(htmlContent, true);
 
 
-
-        Context context = new Context();
-  //      String welcomeText = template.getWelcomeText().replace("${name}", user.getName());
-  //      context.setVariable("welcomeText", welcomeText);
- //      context.setVariable("text1", template.getText1());
-  //      context.setVariable("link", link);
-   //     context.setVariable("text2", template.getText2());
-
-    //    String email = this.templateEngine.process(template.getTemplate(), context);
-
-   ////     send(user.getEmail(), template, email);
+        mailSender.send(mimeMessage);
     }
 
 

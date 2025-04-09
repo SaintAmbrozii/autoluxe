@@ -98,7 +98,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(configurer ->
                         configurer.requestMatchers("/api/auth/**")
                                 .permitAll()
-                                .requestMatchers("/")
+                                .requestMatchers("/","/send","/contact")
                                 .permitAll()
                                 .requestMatchers("/swagger-ui/**")
                                 .permitAll()

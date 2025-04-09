@@ -6,7 +6,11 @@ import com.example.autoluxe.config.AppProperties;
 import com.example.autoluxe.domain.*;
 import com.example.autoluxe.events.*;
 import com.example.autoluxe.exception.AppException;
-import com.example.autoluxe.payload.*;
+import com.example.autoluxe.payload.auth.ApiResponse;
+import com.example.autoluxe.payload.auth.LoginRequest;
+import com.example.autoluxe.payload.auth.LoginResponse;
+import com.example.autoluxe.payload.auth.SignUpRequest;
+import com.example.autoluxe.payload.jwt.TokenResponse;
 import com.example.autoluxe.repo.UserRepo;
 import com.example.autoluxe.security.TokenProvider;
 import com.example.autoluxe.service.*;
@@ -32,7 +36,6 @@ import java.net.URI;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Optional;
-import java.util.Properties;
 
 @RestController
 @RequestMapping("api/auth")
@@ -125,7 +128,6 @@ public class AuthController {
         user.setPhone(signUpRequest.getPhone());
         user.setPassword(encoder.encode(signUpRequest.getPassword()));
         user.setName(signUpRequest.getName());
-        user.setActive(true);
 
         user.setRole(Role.ROLE_ADMIN);
 
@@ -138,7 +140,6 @@ public class AuthController {
         getUserTokenListener.onApplicationEvent(new GetUserTokenEvent(user.getId()));
 
         registrationListener.onApplicationEvent(new RegistrationCompleteEvent(userAfterSaving,appUrl,request.getLocale()));
-
 
 
 
@@ -160,8 +161,6 @@ public class AuthController {
        return
                ResponseEntity.ok(new ApiResponse(true, "User confirmed successfully!"));
     }
-
-
 
 
     @PostMapping("/refresh")

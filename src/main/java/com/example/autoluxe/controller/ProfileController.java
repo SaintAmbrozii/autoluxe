@@ -3,15 +3,13 @@ package com.example.autoluxe.controller;
 import com.example.autoluxe.domain.User;
 import com.example.autoluxe.domain.UserAccount;
 import com.example.autoluxe.dto.UserDto;
-import com.example.autoluxe.payload.*;
-import com.example.autoluxe.payload.confirmbuy.ConfirmByAccountDto;
+import com.example.autoluxe.payload.changelogin.UserLoginRequest;
+import com.example.autoluxe.payload.changename.UserNameRequest;
+import com.example.autoluxe.payload.changepass.ChangeUserPass;
 import com.example.autoluxe.payload.getbuytoken.BuyTokenRequest;
-import com.example.autoluxe.payload.getbuytoken.GetByTokenRequest;
 import com.example.autoluxe.service.AccountService;
 import com.example.autoluxe.service.UserService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,29 +40,30 @@ public class ProfileController {
     public UserDto update (@AuthenticationPrincipal User user) {
         return userService.updateUser(user.getId(), user);
     }
+
     @PatchMapping("/accounts/hide/{id}")
     public void hide (@PathVariable(name = "id") Long accountId,
                                              @AuthenticationPrincipal User user) {
         userService.hideAccount(accountId,user.getId());
     }
     @PatchMapping("/accounts/changename/{id}")
-    public void changeName(@PathVariable(name = "id")Long accountId,
+    public UserAccount changeName(@PathVariable(name = "id")Long accountId,
                                                   @AuthenticationPrincipal User user,
                                                   @RequestBody UserNameRequest request) {
 
-         userService.changeUserName(user.getId(),accountId,request);
+       return  userService.changeUserName(user.getId(),accountId,request);
     }
     @PatchMapping("/accounts/changelogin/{id}")
-    public void changeLogin(@PathVariable(name = "id")Long accountId,
+    public UserAccount changeLogin(@PathVariable(name = "id")Long accountId,
                                                    @AuthenticationPrincipal User user,
                                                    @RequestBody UserLoginRequest request) {
-         userService.changeUserLogin(user.getId(),accountId,request);
+       return   userService.changeUserLogin(user.getId(),accountId,request);
     }
     @PatchMapping("/accounts/changepass/{id}")
-    public void changePass(@PathVariable(name = "id")Long accountId,
+    public UserAccount changePass(@PathVariable(name = "id")Long accountId,
                                                   @AuthenticationPrincipal User user,
                                                   @RequestBody ChangeUserPass request) {
-         userService.changeUserPass(user.getId(),accountId,request);
+        return userService.changeUserPass(user.getId(),accountId,request);
     }
 
     @PatchMapping("/addsub")

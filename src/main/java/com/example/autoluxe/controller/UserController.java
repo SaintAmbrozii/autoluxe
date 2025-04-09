@@ -4,6 +4,7 @@ import com.example.autoluxe.domain.User;
 import com.example.autoluxe.dto.AdminDto;
 import com.example.autoluxe.dto.UserDto;
 import com.example.autoluxe.payload.*;
+import com.example.autoluxe.payload.addbalance.AddBalance;
 import com.example.autoluxe.payload.confirmbuy.ConfirmByResponse;
 import com.example.autoluxe.payload.getbuytoken.GetByTokenRequest;
 import com.example.autoluxe.payload.getbuytoken.GetByTokenResponse;
@@ -34,7 +35,7 @@ public class UserController {
 
     @GetMapping
     public Page<UserDto> list(@RequestParam(value = "page", defaultValue = "0", required = false) int page,
-                              @RequestParam(value = "count", defaultValue = "50", required = false) int size,
+                              @RequestParam(value = "count", defaultValue = "100", required = false) int size,
                               @RequestParam(value = "order", defaultValue = "DESC", required = false) Sort.Direction direction,
                               @RequestParam(value = "sort", defaultValue = "id", required = false) String sortProperty) {
         Sort sort = Sort.by(new Sort.Order(direction, sortProperty));
@@ -47,21 +48,21 @@ public class UserController {
  //       return userService.getAllUsers();
   //  }
 
+    @PatchMapping("/addbalance/{id}")
+    public UserDto addBalance(@PathVariable(name = "id")Long id, @RequestBody AddBalance balance) {
+        return userService.addBalance(id, balance);
+    }
+
     @GetMapping("{id}")
     public UserDto findById(@PathVariable(name = "id")Long id) {
         return userService.findById(id);
     }
 
-    @GetMapping("/profile")
-    public AdminDto profile(@AuthenticationPrincipal User user) {
-        return userService.getProfile(user.getId());
-    }
 
     @PatchMapping("{id}")
     public UserDto updateUser(@PathVariable(name = "id")Long id, @AuthenticationPrincipal User user) {
         return userService.updateUser(id, user);
     }
-
 
     @DeleteMapping("{id}")
     public void deleteUser(@PathVariable(name = "id")Long id){

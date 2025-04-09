@@ -1,4 +1,4 @@
-package com.example.autoluxe.payload;
+package com.example.autoluxe.payload.jwt;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
