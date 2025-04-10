@@ -53,7 +53,7 @@ public class User implements UserDetails, Serializable {
     @Column(name = "epic_token")
     private String epic_token;
 
-    @Column(name = "balance")
+    @Column(name = "balance",columnDefinition = "NUMERIC(10,2)")
     private BigDecimal balance;
 
     @ToString.Exclude

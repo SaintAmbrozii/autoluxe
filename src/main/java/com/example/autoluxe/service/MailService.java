@@ -4,7 +4,7 @@ import com.example.autoluxe.config.MailConfig;
 import com.example.autoluxe.config.MailProperties;
 import com.example.autoluxe.domain.MailType;
 import com.example.autoluxe.domain.User;
-import freemarker.template.Configuration;
+
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
@@ -78,57 +78,6 @@ public class MailService {
 
 
 
-
-    //   public void sendEmail(User user, MailType mailType, Properties params) {
-    //       switch (mailType){
-    //           case REGISTRATION -> sendRegistrationEmail(user,params);
-//            case ZAYAVKA -> sendBookingToEmail(user,params);
-///            case ZVONOK -> sendCancelBookingToEmail(user,params);
-//            default -> {}
-    //       }
-    //   }
-
-
-
-        //   @SneakyThrows
-        //   private void sendRegistrationEmail(User user,Properties params) {
-        //       MimeMessage mimeMessage = mailSender.createMimeMessage();
-        //       MimeMessageHelper helper = new MimeMessageHelper(mimeMessage,false,"UTF-8");
-        //       helper.setSubject("Спасибо за регистрацию в нашем сервисе" + user.getName());
-//        helper.setTo(user.getEmail());
-//        String content = getRegistrationEmailContent(user,params);
-//        helper.setText(content,true);
-
-
-        //       mailSender.send(mimeMessage);
-        //       log.info("письмо регистрации отправлено получателю");
-        //   }
-
-
-//    @SneakyThrows
-        //  private void sendBookingToEmail(User user,Properties params) {
-        //     MimeMessage mimeMessage = mailSender.createMimeMessage();
-        ////      MimeMessageHelper helper = new MimeMessageHelper(mimeMessage,false,"UTF-8");
-        //      helper.setSubject("Вы произвели бронирование билетов на рейс" + user.getName());
-        //      helper.setTo(user.getEmail());
-        //       String content = getBookingEmailContent(user,params);
-        //       helper.setText(content,true);
-        //       mailSender.send(mimeMessage);
-        //       log.info("письмо покупки билетов отправлено получателю");
-
-        //   }
-        //   @SneakyThrows
-        //   private void sendCancelBookingToEmail(User user,Properties params) {
-        //       MimeMessage mimeMessage = mailSender.createMimeMessage();
-        //       MimeMessageHelper helper = new MimeMessageHelper(mimeMessage,false,"UTF-8");
-        //     helper.setSubject("Произошел возврат билетов на рейс" + user.getName());
-        //       helper.setTo(user.getEmail());
-        //     String content = getCancelEmailContent(user,params);
-
-        //     helper.setText(content,true);
-        //      mailSender.send(mimeMessage);
-        //      log.info("письмо отмены бронирования отправлено получателю");
-        //  }
 
 
 

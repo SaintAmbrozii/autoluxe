@@ -2,6 +2,7 @@ package com.example.autoluxe.controller;
 
 import com.example.autoluxe.domain.User;
 import com.example.autoluxe.domain.UserAccount;
+import com.example.autoluxe.dto.UserAccountDto;
 import com.example.autoluxe.dto.UserDto;
 import com.example.autoluxe.payload.changelogin.UserLoginRequest;
 import com.example.autoluxe.payload.changename.UserNameRequest;
@@ -33,7 +34,7 @@ public class ProfileController {
     }
 
     @GetMapping("/accounts")
-    public List<UserAccount> findByUser(@AuthenticationPrincipal User user) {
+    public List<UserAccountDto> findByUser(@AuthenticationPrincipal User user) {
         return accountService.findAllByUserId(user.getId());
     }
     @PatchMapping

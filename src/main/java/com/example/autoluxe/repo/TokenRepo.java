@@ -1,6 +1,7 @@
 package com.example.autoluxe.repo;
 
 import com.example.autoluxe.domain.Token;
+import com.example.autoluxe.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -17,5 +18,9 @@ public interface TokenRepo extends JpaRepository<Token,Long> {
     List<Token> findAllValidTokenByUser(Long id);
 
     @Query("SELECT t FROM Token t WHERE t.token=:token")
-    Optional<Token> findByToken(String token);
+    Optional<Token> findByToken (String token);
+
+
+
+
 }

@@ -97,8 +97,8 @@ public class AuthController {
         final User user = userRepo.findUserByEmail(loginRequest.getEmail()).orElseThrow();
         tokenService.revokeAllUserToken(user);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String access = tokenProvider.createToken(authentication);
-        String refresh = tokenProvider.createRefreshToken(authentication);
+        String access = tokenProvider.createToken(user);
+        String refresh = tokenProvider.createRefreshToken(user);
         TokenResponse tokenResponse = TokenResponse.builder().accessToken(access).refreshToken(refresh).build();
         tokenService.saveToken(user, refresh);
 
@@ -177,10 +177,14 @@ public class AuthController {
             tokenService.deleteToken(currentToken.getId());
         }
 
-        String refreshToken = currentToken.getToken();
-        String newAccessToken = null;
+        String username = tokenProvider.getUserEmailFromToken(refresh);
+        User user = userRepo.findUserByEmail(username).orElseThrow();
 
-        TokenResponse response = TokenResponse.builder().refreshToken(refreshToken).accessToken(null).build();
+        String refreshToken = currentToken.getToken();
+        String newAccessToken = tokenProvider.createToken(user);
+
+        TokenResponse response = TokenResponse.builder()
+                .refreshToken(refreshToken).accessToken(newAccessToken).accessToken(newAccessToken).build();
 
         HttpHeaders responseHeaders = new HttpHeaders();
         addAccessTokenCookie(responseHeaders, newAccessToken);

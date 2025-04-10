@@ -3,6 +3,7 @@ package com.example.autoluxe.service;
 import com.example.autoluxe.domain.User;
 import com.example.autoluxe.domain.UserAccount;
 import com.example.autoluxe.domain.VerificationToken;
+import com.example.autoluxe.dto.UserAccountDto;
 import com.example.autoluxe.repo.AccountRepo;
 import com.example.autoluxe.repo.UserRepo;
 import com.example.autoluxe.repo.VerificationTokenRepo;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class AccountService {
@@ -25,12 +27,14 @@ public class AccountService {
         this.verificationTokenRepo = verificationTokenRepo;
     }
 
-    public List<UserAccount> getAll () {
-        return accountRepo.findAll();
+    public List<UserAccountDto> getAll () {
+        return accountRepo.findAll().
+                stream().map(UserAccountDto::toDto).collect(Collectors.toList());
     }
 
-    public List<UserAccount> findAllByUserId(Long id) {
-        return accountRepo.findAllByUserId(id);
+    public List<UserAccountDto> findAllByUserId(Long id) {
+        return accountRepo.findAllByUserId(id)
+                .stream().map(UserAccountDto::toDto).collect(Collectors.toList());
     }
 
     public Optional<UserAccount> findByEpcId(Integer id){
@@ -51,7 +55,6 @@ public class AccountService {
     public VerificationToken getVerificationToken(String VerificationToken) {
         return verificationTokenRepo.findByToken(VerificationToken);
     }
-
 
 
 

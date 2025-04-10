@@ -1,7 +1,6 @@
 package com.example.autoluxe.controller;
 
 import com.example.autoluxe.domain.User;
-import com.example.autoluxe.dto.AdminDto;
 import com.example.autoluxe.dto.UserDto;
 import com.example.autoluxe.payload.*;
 import com.example.autoluxe.payload.addbalance.AddBalance;
@@ -49,8 +48,8 @@ public class UserController {
   //  }
 
     @PatchMapping("/addbalance/{id}")
-    public UserDto addBalance(@PathVariable(name = "id")Long id, @RequestBody AddBalance balance) {
-        return userService.addBalance(id, balance);
+    public UserDto addBalance(@PathVariable(name = "id")Long id, @AuthenticationPrincipal User user, @RequestBody AddBalance balance) {
+        return userService.addBalance(id,user, balance);
     }
 
     @GetMapping("{id}")

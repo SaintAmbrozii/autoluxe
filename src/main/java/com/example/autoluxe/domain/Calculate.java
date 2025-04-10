@@ -22,6 +22,7 @@ public class Calculate {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ElementCollection(fetch = FetchType.EAGER)
     @Type(ListArrayType.class)
     @Column(name = "params",columnDefinition = "integer[]")
     private List<Integer> params;
@@ -31,4 +32,7 @@ public class Calculate {
 
     @Column(name = "price")
     private Double price;
+
+    @OneToMany
+    private List<ParamsCalculate> calculates;
 }

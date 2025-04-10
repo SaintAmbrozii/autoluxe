@@ -5,13 +5,14 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "payments")
+@Table(name = "payments",indexes = {@Index(name = "payment_timestamp_index", columnList = "timestamp")})
 @ToString
 public class Payments {
     @Id
@@ -23,10 +24,9 @@ public class Payments {
     private Long managerId;
     @Column(name = "userEmail")
     private String userEmail;
-    @Column(name = "created")
-    private LocalDateTime created;
-    @Column(name = "summa")
+    @Column(name = "timestamp")
+    private ZonedDateTime timestamp;
+    @Column(name = "summa",columnDefinition = "NUMERIC(10,2)")
     private BigDecimal summa;
 
-    private boolean payAdmin;
 }

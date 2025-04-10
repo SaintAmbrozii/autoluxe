@@ -1,14 +1,13 @@
 package com.example.autoluxe.service;
 
 
+import com.example.autoluxe.domain.Calculate;
 import com.example.autoluxe.domain.Payments;
 import com.example.autoluxe.domain.User;
 import com.example.autoluxe.domain.UserAccount;
-import com.example.autoluxe.dto.UserAccountDto;
 import com.example.autoluxe.dto.UserDto;
 import com.example.autoluxe.events.BuyEpcTokenEvent;
 import com.example.autoluxe.events.BuyEpcTokenEventListener;
-import com.example.autoluxe.events.GetUserAccountsEvent;
 import com.example.autoluxe.events.GetUserAccountsListener;
 import com.example.autoluxe.exception.NotFoundException;
 import com.example.autoluxe.payload.addbalance.AddBalance;
@@ -22,13 +21,12 @@ import com.example.autoluxe.payload.changepass.ChangeUserPass;
 import com.example.autoluxe.payload.getbuytoken.BuyTokenRequest;
 import com.example.autoluxe.payload.getbuytoken.GetByTokenRequest;
 import com.example.autoluxe.payload.getbuytoken.GetByTokenResponse;
-import com.example.autoluxe.payload.getuseraccounts.GetUserAccountResponse;
-import com.example.autoluxe.payload.getuseraccounts.GetUserAccounts;
 import com.example.autoluxe.payload.getusertoken.GetUserTokenRequest;
 import com.example.autoluxe.payload.getusertoken.GetUserTokenResponse;
 import com.example.autoluxe.payload.hideuseracc.HideAccRequest;
 import com.example.autoluxe.repo.AccountRepo;
 import com.example.autoluxe.repo.UserRepo;
+import com.example.autoluxe.utils.DateUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +34,7 @@ import org.springframework.web.client.RestClient;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -46,8 +45,6 @@ public class UserService {
 
     private static final String partner_token = "1e3972f9908c713356e9eb255947f148";
 
-    private static final HashMap<String,String> tokenmap = new HashMap<>();
-
 
     private final UserRepo userRepo;
     private final PasswordEncoder encoder;
@@ -56,11 +53,13 @@ public class UserService {
     private final PaymentService paymentService;
     private final BuyEpcTokenEventListener buyEpcTokenEventListener;
     private final AccountRepo accountRepo;
+    private final CalculationService calculationService;
 
     public UserService(UserRepo userRepo, PasswordEncoder encoder,
                        AccountService accountService,
                        GetUserAccountsListener getUserAccountsListener,
-                       PaymentService paymentService, BuyEpcTokenEventListener buyEpcTokenEventListener, AccountRepo accountRepo) {
+                       PaymentService paymentService, BuyEpcTokenEventListener buyEpcTokenEventListener,
+                       AccountRepo accountRepo, CalculationService calculationService) {
         this.userRepo = userRepo;
         this.encoder = encoder;
         this.accountService = accountService;
@@ -68,6 +67,7 @@ public class UserService {
         this.paymentService = paymentService;
         this.buyEpcTokenEventListener = buyEpcTokenEventListener;
         this.accountRepo = accountRepo;
+        this.calculationService = calculationService;
     }
 
 
@@ -256,6 +256,7 @@ public class UserService {
     //    getUserAccountsListener.onApplicationEvent(new GetUserAccountsEvent(inDB.getId()));
     }
 
+    @Transactional
     public void getByToken (Long userId, Long accountId, BuyTokenRequest buyTokenRequest) {
 
         User inDB = userRepo.findById(userId)
@@ -268,20 +269,49 @@ public class UserService {
 
         Integer epcId = account.getEpcId();
 
-       GetByTokenRequest request = GetByTokenRequest.builder()
-                .token(inDB.getEpic_token())
-                .products(String.valueOf(buyTokenRequest.getParam()))
-                .user_ids(String.valueOf(epcId))
-                .days(buyTokenRequest.getDays()).build();
+    //    Optional<Calculate> calculate = Optional.ofNullable(calculationService.calculate(buyTokenRequest.getParam(), buyTokenRequest.getDays()));
 
-        GetByTokenResponse response = client.
-                post().
-                uri(EPIC_URI + "get_buy_token").
-                body(request).
-                retrieve()
-                .body(GetByTokenResponse.class);
+    //    Calculate currentCalc = calculate.get();
 
-           buyEpcTokenEventListener.onApplicationEvent(new BuyEpcTokenEvent(response.getToken(),inDB.getEpic_token()));
+        Double price = caclucate(buyTokenRequest.getParam(),buyTokenRequest.getDays());
+
+        if (inDB.getBalance().doubleValue()>= price) {
+
+            BigDecimal buyAccountPrice = inDB.getBalance().subtract(BigDecimal.valueOf(price));
+
+
+            String params = String.valueOf(buyTokenRequest.getParam()).replace("[", "")
+                    .trim().replaceAll(" ","").trim().replaceAll("\\]","").trim();
+
+            System.out.println(params);
+
+            GetByTokenRequest request = GetByTokenRequest.builder()
+                    .token(inDB.getEpic_token())
+                    .products(params)
+                    .user_ids(String.valueOf(epcId))
+                    .days(buyTokenRequest.getDays()).build();
+
+            GetByTokenResponse response = client.
+                    post().
+                    uri(EPIC_URI + "get_buy_token").
+                    body(request).
+                    retrieve()
+                    .body(GetByTokenResponse.class);
+
+            buyEpcTokenEventListener.onApplicationEvent(new BuyEpcTokenEvent(response.getToken(),inDB.getEpic_token()));
+
+            inDB.setBalance(buyAccountPrice);
+            userRepo.save(inDB);
+
+            Payments payments = new Payments();
+            payments.setUserId(inDB.getId());
+            payments.setSumma(BigDecimal.valueOf(price));
+            payments.setUserEmail(inDB.getEmail());
+            payments.setTimestamp(ZonedDateTime.now());
+            paymentService.save(payments);
+
+        }
+
 
     }
 
@@ -292,17 +322,15 @@ public class UserService {
     }
 
     @Transactional
-    public UserDto addBalance(Long id, AddBalance balance) {
+    public UserDto addBalance(Long id, User user, AddBalance balance) {
         User inDB = userRepo.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
         inDB.setBalance(BigDecimal.valueOf(balance.getBalance()));
         Payments payments = new Payments();
-        payments.setCreated(LocalDateTime.now());
-        payments.setManagerId(32L);
+        payments.setTimestamp(ZonedDateTime.now());
+        payments.setManagerId(user.getId());
         payments.setUserId(inDB.getId());
         payments.setSumma(BigDecimal.valueOf(balance.getBalance()));
-        payments.setPayAdmin(true);
         paymentService.save(payments);
-
         return UserDto.toDto(inDB);
     }
 
@@ -316,81 +344,6 @@ public class UserService {
         return UserDto.toDto(inDB);
     }
 
-    private Double calculate(List<Integer> params, Integer days) {
-        // params
-        //4 - AutoData
-        //72 - TecDoc
-       // 84 - полный
-      //  129 - TIS
-      //  132 - легковой
-     //   133 - грузовой
-     //   134 - TechData
-        if (params.contains(84) && days == 30) {
-           return 5500.00;
-       }
-       if (params.contains(84) && days == 90) {
-           return 15500.00;
-       }
-       if (params.contains(84)&& days == 180) {
-           return 36000.00;
-       }
-       if (params.contains(84) && days == 365) {
-           return 54000.00;
-       }
-       if (params.contains(84) && params.contains(4) | params.contains(134) | params.contains(72) & days == 30) {
-           return 6500.00;
-        }
-        if (params.contains(84) && params.contains(4) | params.contains(134) | params.contains(72) & days == 90) {
-            return 18000.00;
-        }
-        if (params.contains(84) && params.contains(4) | params.contains(134) | params.contains(72) & days == 180) {
-            return 34800.00;
-        }
-        if (params.contains(84) && params.contains(4) | params.contains(134) | params.contains(72) & days == 365) {
-            return 66000.00;
-        }
-        if (params.contains(84) && params.contains(72) && params.contains(134) | params.contains(4) & days == 30) {
-            return 7500.00;
-        }
-        if (params.contains(84) && params.contains(4) && params.contains(134) | params.contains(72) & days == 30) {
-            return 7500.00;
-        }
-        if (params.contains(84) && params.contains(72) && params.contains(134) | params.contains(4) & days == 90) {
-            return 21000.00;
-        }
-        if (params.contains(84) && params.contains(4) && params.contains(134) | params.contains(72) & days == 90) {
-            return 21000.00;
-        }
-        if (params.contains(84) && params.contains(72) && params.contains(134) | params.contains(4) & days == 180) {
-            return 40800.00;
-        }
-        if (params.contains(84) && params.contains(4) && params.contains(134) | params.contains(72) & days == 180) {
-            return 40800.00;
-        }
-        if (params.contains(84) && params.contains(72) && params.contains(134) | params.contains(4) & days == 365) {
-            return 76000.00;
-        }
-        if (params.contains(84) && params.contains(4) && params.contains(134) | params.contains(72) & days == 365) {
-            return 76000.00;
-        }
-        if(params.contains(84) && params.contains(4) && params.contains(134) && params.contains(72) & days == 30) {
-            return 8500.00;
-        }
-        if(params.contains(84) && params.contains(4) && params.contains(134) && params.contains(72) & days == 90) {
-            return 24000.00;
-        }
-        if(params.contains(84) && params.contains(4) && params.contains(134) && params.contains(72) & days == 180) {
-            return 46800.00;
-        }
-        if(params.contains(84) && params.contains(4) && params.contains(134) && params.contains(72) & days == 365) {
-            return 88000.00;
-        }
-
-       else {
-           return null;
-       }
-    }
-
 
 
     public boolean doesUsernameExists(String username){
@@ -398,6 +351,14 @@ public class UserService {
     }
 
 
-
+    private Double caclucate (List<Integer> params,Integer days) {
+        if (params.contains(84) && days == 30) {
+            return 5500.00;
+        }
+        if (params.contains(84) & params.contains(72) && days == 30) {
+            return 6500.00;
+        }
+        return null;
+    }
 
 }

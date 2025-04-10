@@ -5,10 +5,7 @@ import com.example.autoluxe.repo.CalcRepo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class CalculationService {
@@ -27,16 +24,10 @@ public class CalculationService {
        return calcRepo.save(calculate);
     }
 
-    public Optional<Calculate> calculate(Set<Integer> params, Integer days) {
-
-        List<Calculate> list = calcRepo.findAllByDays(days);
+    public Optional<Calculate> calculate(List<Integer> params, Integer days) {
 
 
-      Optional<Calculate> calculate = list.stream()
-              .filter(cacl->cacl.getParams().contains(params))
-              .findFirst();
-
-       return calculate;
+        return calcRepo.findCalculateByDaysAndCalculates(days,params);
 
 
     }

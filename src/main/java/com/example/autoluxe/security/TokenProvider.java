@@ -33,28 +33,26 @@ public class TokenProvider {
     private final AppProperties appProperties;
     private final CustomUserDetailService customUserDetailsService;
 
-    public String createToken(Authentication authentication) {
-        User userPrincipal = (User) authentication.getPrincipal();
+    public String createToken(User user) {
 
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + appProperties.getAuth().getTokenExpirationMsec());
 
         return Jwts.builder()
-                .setSubject(userPrincipal.getEmail())
+                .setSubject(user.getEmail())
                 .setIssuedAt(new Date())
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, appProperties.getAuth().getTokenSecret())
                 .compact();
     }
 
-    public String createRefreshToken(Authentication authentication) {
+    public String createRefreshToken(User user) {
 
-        User userPrincipal = (User) authentication.getPrincipal();
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + appProperties.getAuth().getRefreshExpirationMsec());
 
         return Jwts.builder()
-                .setSubject(userPrincipal.getEmail())
+                .setSubject(user.getEmail())
                 .setIssuedAt(new Date())
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, appProperties.getAuth().getTokenSecret())
