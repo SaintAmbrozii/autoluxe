@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PaymentService {
@@ -26,10 +27,11 @@ public class PaymentService {
 
     public Page<PaymentDto> findByUser(Long userId, Pageable pageable) {
 
-
         return paymentRepo.findByManagerId(userId,pageable)
                 .map(PaymentDto::toDto);
     }
+
+
 
 
 

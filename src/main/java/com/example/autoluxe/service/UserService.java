@@ -355,6 +355,9 @@ public class UserService {
         if (params.contains(84) && days == 30) {
             return 5500.00;
         }
+        if (params.contains(84) && days == 90) {
+            return 15500.00;
+        }
         if (params.contains(84) & params.contains(72) && days == 30) {
             return 6500.00;
         }

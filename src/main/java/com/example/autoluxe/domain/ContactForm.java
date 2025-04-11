@@ -5,24 +5,20 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.web.bind.annotation.GetMapping;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "calcParams")
-public class ParamsCalculate {
+@Table(name = "contact_form")
+public class ContactForm {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "param")
-    private Integer param;
-
-    @ManyToOne
-    private Calculate calculate;
-
-
+    @Column(name = "name")
+    private String name;
+    @Column(name = "phone")
+    private String phone;
 }

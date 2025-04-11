@@ -1,4 +1,4 @@
-package com.example.autoluxe.config;
+package com.example.autoluxe.configserver;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.catalina.Context;

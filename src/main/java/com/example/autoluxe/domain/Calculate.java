@@ -33,6 +33,4 @@ public class Calculate {
     @Column(name = "price")
     private Double price;
 
-    @OneToMany
-    private List<ParamsCalculate> calculates;
 }
