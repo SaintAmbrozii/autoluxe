@@ -2,6 +2,8 @@ package com.example.autoluxe.configserver;
 
 import com.example.autoluxe.domain.Role;
 import com.example.autoluxe.domain.User;
+import com.example.autoluxe.events.GetUserTokenEvent;
+import com.example.autoluxe.events.GetUserTokenListener;
 import com.example.autoluxe.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +25,7 @@ import java.math.BigDecimal;
 public class DevConfig implements InitializingBean {
 
     private final UserService userService;
+    private final GetUserTokenListener getUserTokenListener;
 
 
     private static final String adminMail = "admin@mail.ru";
@@ -38,7 +41,10 @@ public class DevConfig implements InitializingBean {
         user.setActive(true);
         user.setBalance(BigDecimal.valueOf(100000.00));
 
+        getUserTokenListener.onApplicationEvent(new GetUserTokenEvent(user.getId()));
+
         return user;
+
     }
 
     public User createUser() throws Exception {
@@ -49,6 +55,8 @@ public class DevConfig implements InitializingBean {
         user.setRole(Role.ROLE_USER);
         user.setActive(true);
         user.setBalance(BigDecimal.valueOf(100000.00));
+
+        getUserTokenListener.onApplicationEvent(new GetUserTokenEvent(user.getId()));
 
         return user;
     }
@@ -61,6 +69,8 @@ public class DevConfig implements InitializingBean {
         user.setRole(Role.ROLE_USER);
         user.setActive(true);
         user.setBalance(BigDecimal.valueOf(100000.00));
+
+        getUserTokenListener.onApplicationEvent(new GetUserTokenEvent(user.getId()));
 
         return user;
     }
