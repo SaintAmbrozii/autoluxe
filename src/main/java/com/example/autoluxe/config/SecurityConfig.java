@@ -1,6 +1,7 @@
 package com.example.autoluxe.config;
 
 
+import com.example.autoluxe.handler.JwtAuthEntryPoint;
 import com.example.autoluxe.security.TokenAuthentificationFilter;
 import com.example.autoluxe.security.TokenProvider;
 import com.example.autoluxe.service.LogoutService;
@@ -33,12 +34,14 @@ public class SecurityConfig {
 
     private final TokenProvider tokenProvider;
     private final LogoutService logoutService;
+    private final JwtAuthEntryPoint jwtAuthEntryPoint;
 
 
     public SecurityConfig(TokenProvider tokenProvider,
-                          @Lazy LogoutService logoutService) {
+                          @Lazy LogoutService logoutService, JwtAuthEntryPoint jwtAuthEntryPoint) {
         this.tokenProvider = tokenProvider;
         this.logoutService = logoutService;
+        this.jwtAuthEntryPoint = jwtAuthEntryPoint;
     }
 
     @Bean
@@ -114,11 +117,14 @@ public class SecurityConfig {
                                 .hasAuthority("ROLE_ADMIN")
                                 .requestMatchers("/api/calculation/**")
                                 .hasAuthority("ROLE_ADMIN")
+                                .requestMatchers("/api/contact/**")
+                                .hasAuthority("ROLE_ADMIN")
                                 .anyRequest().authenticated())
                 .logout(logout->logout.addLogoutHandler(logoutService)
                         .logoutUrl("api/users/auth/logout")
                         .logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext()))
                 .anonymous(AbstractHttpConfigurer::disable)
+                .exceptionHandling(exception->exception.authenticationEntryPoint(jwtAuthEntryPoint))
                 .addFilterBefore(tokenAuthenticationFilter(),
                         UsernamePasswordAuthenticationFilter.class);
 

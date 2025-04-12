@@ -24,18 +24,23 @@ public class PaymentService {
     }
 
 
-
     public Page<PaymentDto> findByUser(Long userId, Pageable pageable) {
 
-        return paymentRepo.findByManagerId(userId,pageable)
+        return paymentRepo.findByManagerId(userId, pageable)
                 .map(PaymentDto::toDto);
     }
 
+    public Long countAllManagerId(Long id) {
+        return countAllManagerId(id);
+    }
 
-
-
+    public Long countAllPayments() {
+        return paymentRepo.count();
+    }
 
     public Payments save(Payments payments) {
         return paymentRepo.save(payments);
     }
+
+
 }

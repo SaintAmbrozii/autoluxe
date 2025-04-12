@@ -13,6 +13,10 @@ public interface PaymentRepo extends JpaRepository<Payments,Long> {
 
     Page<Payments> findByManagerId(Long userId, Pageable pageable);
 
+    Long countAllByManagerId(Long id);
+
+
+
 
 
 

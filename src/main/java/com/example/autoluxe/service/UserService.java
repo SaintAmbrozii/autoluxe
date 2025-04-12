@@ -344,6 +344,11 @@ public class UserService {
         return UserDto.toDto(inDB);
     }
 
+    public User createTestUser(User user) {
+       return userRepo.save(user);
+
+    }
+
 
 
     public boolean doesUsernameExists(String username){
@@ -356,10 +361,217 @@ public class UserService {
             return 5500.00;
         }
         if (params.contains(84) && days == 90) {
-            return 15500.00;
+            return 15000.00;
+        }
+        if (params.contains(84) && days == 180){
+            return 28800.00;
+        }
+        if (params.contains(84) && days == 365) {
+            return 54000.00;
+        }
+        if (params.contains(132) && days == 30) {
+            return 4500.00;
+        }
+        if (params.contains(132) && days == 90) {
+            return 12500.00;
+        }
+        if (params.contains(132) && days == 180) {
+            return 23500.00;
+        }
+        if (params.contains(132) && days == 365) {
+            return 45000.00;
+        }
+        if (params.contains(133) && days == 30) {
+            return 4500.00;
+        }
+        if (params.contains(133) && days == 90) {
+            return 12500.00;
+        }
+        if (params.contains(133) && days == 180) {
+            return 23500.00;
+        }
+        if (params.contains(133) && days == 365) {
+            return 45000.00;
+        }
+        if (params.contains(129) && days == 30) {
+            return 3000.00;
+        }
+        if (params.contains(129) && days == 90) {
+            return 9000.00;
+        }
+        if (params.contains(129) && days == 180) {
+            return 18000.00;
+        }
+        if (params.contains(129) && days == 365) {
+            return 36000.00;
+        }
+        if (params.contains(72) && days == 30) {
+            return 1000.00;
+        }
+        if (params.contains(72) && days == 90) {
+            return 3000.00;
+        }
+        if (params.contains(72) && days == 180) {
+            return 6000.00;
+        }
+        if (params.contains(72) && days == 365) {
+            return 12000.00;
+        }
+        if (params.contains(134) && days == 30) {
+            return 1000.00;
+        }
+        if (params.contains(134) && days == 90) {
+            return 3000.00;
+        }
+        if (params.contains(134) && days == 180) {
+            return 6000.00;
+        }
+        if (params.contains(134) && days == 365) {
+            return 12000.00;
+        }
+        if (params.contains(4) && days == 30) {
+            return 1000.00;
+        }
+        if (params.contains(4) && days == 90) {
+            return 3000.00;
+        }
+        if (params.contains(4) && days == 180) {
+            return 6000.00;
+        }
+        if (params.contains(4) && days == 365) {
+            return 12000.00;
+        }
+        if (params.contains(72) && params.contains(134) && days == 30) {
+            return 2000.00;
+        }
+        if (params.contains(72) && params.contains(134) && days == 90) {
+            return 6000.00;
+        }
+        if (params.contains(72) && params.contains(134) && days == 180) {
+            return 12000.00;
+        }
+        if (params.contains(72) && params.contains(134) && days == 365) {
+            return 24000.00;
+        }
+        if (params.contains(72) && params.contains(4) && days == 30) {
+            return 2000.00;
+        }
+        if (params.contains(72) && params.contains(4) && days == 90) {
+            return 6000.00;
+        }
+        if (params.contains(72) && params.contains(4) && days == 180) {
+            return 12000.00;
+        }
+        if (params.contains(72) && params.contains(4) && days == 365) {
+            return 24000.00;
+        }
+        if (params.contains(4) && params.contains(134) && days == 30) {
+            return 2000.00;
+        }
+        if (params.contains(4) && params.contains(134) && days == 90) {
+            return 6000.00;
+        }
+        if (params.contains(4) && params.contains(134) && days == 180) {
+            return 12000.00;
+        }
+        if (params.contains(4) && params.contains(134) && days == 365) {
+            return 24000.00;
+        }
+        if (params.contains(72) && params.contains(4) && params.contains(134) && days == 30) {
+            return 3000.00;
+        }
+        if (params.contains(72) && params.contains(4) && params.contains(134) && days == 90) {
+            return 9000.00;
+        }
+        if (params.contains(72) && params.contains(4) && params.contains(134) && days == 180) {
+            return 18000.00;
+        }
+        if (params.contains(72) && params.contains(4) && params.contains(134) && days == 365) {
+            return 36000.00;
         }
         if (params.contains(84) & params.contains(72) && days == 30) {
             return 6500.00;
+        }
+        if (params.contains(84) & params.contains(72) && days == 90) {
+            return 18000.00;
+        }
+        if (params.contains(84) & params.contains(72) && days == 180) {
+            return 34800.00;
+        }
+        if (params.contains(84) & params.contains(72) && days == 365) {
+            return 66000.00;
+        }
+        if (params.contains(84) & params.contains(4) && days == 30) {
+            return 6500.00;
+        }
+        if (params.contains(84) & params.contains(4) && days == 90) {
+            return 18000.00;
+        }
+        if (params.contains(84) & params.contains(4) && days == 180) {
+            return 348000.00;
+        }
+        if (params.contains(84) & params.contains(4) && days == 365) {
+            return 66000.00;
+        }
+        if (params.contains(84) & params.contains(134) && days == 30) {
+            return 6500.00;
+        }
+        if (params.contains(84) & params.contains(134) && days == 90) {
+            return 18000.00;
+        }
+        if (params.contains(84) & params.contains(134) && days == 180) {
+            return 34800.00;
+        }
+        if (params.contains(84) & params.contains(134) && days == 365) {
+            return 66000.00;
+        }
+        if (params.contains(84) & params.contains(72) && params.contains(134) && days == 30) {
+            return 7500.00;
+        }
+        if (params.contains(84) & params.contains(72) && params.contains(134) && days == 90) {
+            return 21000.00;
+        }
+        if (params.contains(84) & params.contains(72) && params.contains(134) && days == 180) {
+            return 40800.00;
+        }
+        if (params.contains(84) & params.contains(72) && params.contains(134) && days == 365) {
+            return 78000.00;
+        }
+        if (params.contains(84) & params.contains(72) && params.contains(4) && days == 30) {
+            return 7500.00;
+        }
+        if (params.contains(84) & params.contains(72) && params.contains(4) && days == 90) {
+            return 21000.00;
+        }
+        if (params.contains(84) & params.contains(72) && params.contains(4) && days == 180) {
+            return 40800.00;
+        }
+        if (params.contains(84) & params.contains(72) && params.contains(4) && days == 365) {
+            return 78000.00;
+        }
+        if (params.contains(84) & params.contains(4) && params.contains(134) && days == 30) {
+            return 7500.00;
+        }
+        if (params.contains(84) & params.contains(4) && params.contains(134) && days == 90) {
+            return 21000.00;
+        }
+        if (params.contains(84) & params.contains(4) && params.contains(134) && days == 180) {
+            return 40800.00;
+        }
+        if (params.contains(84) & params.contains(4) && params.contains(134) && days == 365) {
+            return 78000.00;
+        }
+        if (params.contains(84) & params.contains(72) && params.contains(4) && params.contains(134) && days == 30) {
+            return 8500.00;
+        }
+        if (params.contains(84) & params.contains(72) && params.contains(4) && params.contains(134) && days == 90) {
+            return 24000.00;
+        }
+        if (params.contains(84) & params.contains(72) && params.contains(4) && params.contains(134) && days == 180) {
+            return 46800.00;
+        }
+        if (params.contains(84) & params.contains(72) && params.contains(4) && params.contains(134) && days == 365) {
+            return 90000.00;
         }
         return null;
     }

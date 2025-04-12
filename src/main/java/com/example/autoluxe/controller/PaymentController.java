@@ -40,6 +40,18 @@ public class PaymentController {
         return paymentRepo.findAll(pageable).map(PaymentDto::toDto);
     }
 
+    @GetMapping("countall")
+    public Long countAll(){
+        return paymentService.countAllPayments();
+    }
+
+
+
+    @GetMapping("countallmanager")
+    public Long countAllManager(@AuthenticationPrincipal User user){
+        return paymentRepo.countAllByManagerId(user.getId());
+    }
+
     @GetMapping("list")
     public PaymentPage payments(@AuthenticationPrincipal User user,
                                 @RequestParam(value = "page", defaultValue = "0", required = false) int page,
