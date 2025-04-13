@@ -14,6 +14,7 @@ import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactor
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -26,6 +27,7 @@ public class DevConfig implements InitializingBean {
 
     private final UserService userService;
     private final GetUserTokenListener getUserTokenListener;
+    private final PasswordEncoder encoder;
 
 
     private static final String adminMail = "admin@mail.ru";
@@ -35,6 +37,7 @@ public class DevConfig implements InitializingBean {
     public User createUserAdmin() throws Exception {
         User user = new User();
         user.setActive(true);
+        user.setPassword(encoder.encode("123456"));
         user.setEmail(adminMail);
         user.setName("Админ");
         user.setRole(Role.ROLE_ADMIN);
@@ -51,6 +54,7 @@ public class DevConfig implements InitializingBean {
         User user = new User();
         user.setActive(true);
         user.setEmail("test@mail.ru");
+        user.setPassword(encoder.encode("123456"));
         user.setName("Тест Юзер");
         user.setRole(Role.ROLE_USER);
         user.setActive(true);
@@ -64,6 +68,7 @@ public class DevConfig implements InitializingBean {
     public User createUser2() throws Exception {
         User user = new User();
         user.setActive(true);
+        user.setPassword(encoder.encode("123456"));
         user.setEmail("test2@mail.ru");
         user.setName("Тест Юзер 2");
         user.setRole(Role.ROLE_USER);
