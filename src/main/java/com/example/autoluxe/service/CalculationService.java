@@ -27,7 +27,7 @@ public class CalculationService {
     public Optional<Calculate> calculate(List<Integer> params, Integer days) {
 
 
-        return calcRepo.findCalculateByDaysAndCalculates(days,params);
+        return null;
 
 
     }
