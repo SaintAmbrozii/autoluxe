@@ -49,20 +49,20 @@ public class ProfileController {
         userService.hideAccount(accountId,user.getId());
     }
     @PatchMapping("/accounts/changename/{id}")
-    public UserAccount changeName(@PathVariable(name = "id")Long accountId,
+    public UserAccountDto changeName(@PathVariable(name = "id")Long accountId,
                                                   @AuthenticationPrincipal User user,
                                                   @RequestBody @Valid UserNameRequest request) {
 
        return  userService.changeUserName(user.getId(),accountId,request);
     }
     @PatchMapping("/accounts/changelogin/{id}")
-    public UserAccount changeLogin(@PathVariable(name = "id")Long accountId,
+    public UserAccountDto changeLogin(@PathVariable(name = "id")Long accountId,
                                                    @AuthenticationPrincipal User user,
                                                    @RequestBody @Valid UserLoginRequest request) {
        return   userService.changeUserLogin(user.getId(),accountId,request);
     }
     @PatchMapping("/accounts/changepass/{id}")
-    public UserAccount changePass(@PathVariable(name = "id")Long accountId,
+    public UserAccountDto changePass(@PathVariable(name = "id")Long accountId,
                                                   @AuthenticationPrincipal User user,
                                                   @RequestBody @Valid ChangeUserPass request) {
         return userService.changeUserPass(user.getId(),accountId,request);

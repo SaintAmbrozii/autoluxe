@@ -5,6 +5,7 @@ import com.example.autoluxe.domain.Calculate;
 import com.example.autoluxe.domain.Payments;
 import com.example.autoluxe.domain.User;
 import com.example.autoluxe.domain.UserAccount;
+import com.example.autoluxe.dto.UserAccountDto;
 import com.example.autoluxe.dto.UserDto;
 import com.example.autoluxe.events.BuyEpcTokenEvent;
 import com.example.autoluxe.events.BuyEpcTokenEventListener;
@@ -168,7 +169,7 @@ public class UserService {
     //    getUserAccountsListener.onApplicationEvent(new GetUserAccountsEvent(inDB.getId()));
     }
 
-    public UserAccount changeUserName(Long userId, Long accountId, UserNameRequest userNameRequest) {
+    public UserAccountDto changeUserName(Long userId, Long accountId, UserNameRequest userNameRequest) {
         User inDB = userRepo.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
@@ -192,14 +193,15 @@ public class UserService {
                 .toBodilessEntity();
 
         account.setName(userNameRequest.getName());
+        accountRepo.save(account);
 
-        return accountRepo.save(account);
+        return UserAccountDto.toDto(account);
 
     //    getUserAccountsListener.onApplicationEvent(new GetUserAccountsEvent(inDB.getId()));
 
     }
 
-    public UserAccount changeUserLogin(Long userId,Long accountId, UserLoginRequest loginRequest) {
+    public UserAccountDto changeUserLogin(Long userId,Long accountId, UserLoginRequest loginRequest) {
         User inDB = userRepo.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
@@ -223,12 +225,13 @@ public class UserService {
                 .toBodilessEntity();
 
         account.setLogin(loginRequest.getLogin());
-       return accountRepo.save(account);
+        accountRepo.save(account);
+       return UserAccountDto.toDto(account);
     //    getUserAccountsListener.onApplicationEvent(new GetUserAccountsEvent(inDB.getId()));
 
     }
 
-    public UserAccount changeUserPass(Long userId,Long accountId, ChangeUserPass userPass) {
+    public UserAccountDto changeUserPass(Long userId, Long accountId, ChangeUserPass userPass) {
         User inDB = userRepo.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
@@ -252,7 +255,8 @@ public class UserService {
                 .toBodilessEntity();
 
         account.setPass(userPass.getPass());
-      return   accountRepo.save(account);
+        accountRepo.save(account);
+      return  UserAccountDto.toDto(account);
     //    getUserAccountsListener.onApplicationEvent(new GetUserAccountsEvent(inDB.getId()));
     }
 
