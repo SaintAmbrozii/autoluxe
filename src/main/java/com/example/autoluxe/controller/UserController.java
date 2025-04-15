@@ -10,6 +10,7 @@ import com.example.autoluxe.payload.getbuytoken.GetByTokenResponse;
 import com.example.autoluxe.payload.getuseraccounts.GetUserAccountResponse;
 import com.example.autoluxe.repo.UserRepo;
 import com.example.autoluxe.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -48,7 +49,7 @@ public class UserController {
   //  }
 
     @PatchMapping("/addbalance/{id}")
-    public UserDto addBalance(@PathVariable(name = "id")Long id, @AuthenticationPrincipal User user, @RequestBody AddBalance balance) {
+    public UserDto addBalance(@PathVariable(name = "id")Long id, @AuthenticationPrincipal User user, @RequestBody @Valid AddBalance balance) {
         return userService.addBalance(id,user, balance);
     }
 

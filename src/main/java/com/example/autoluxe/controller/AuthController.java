@@ -44,7 +44,7 @@ public class AuthController {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TokenResponse> authenticateUser(@RequestBody LoginRequest loginRequest,
+    public ResponseEntity<TokenResponse> authenticateUser(@RequestBody @Valid LoginRequest loginRequest,
                                                           @CookieValue(name = "access_token", required = false) String accessToken,
                                                           @CookieValue(name = "refresh_token", required = false) String refreshToken) {
 

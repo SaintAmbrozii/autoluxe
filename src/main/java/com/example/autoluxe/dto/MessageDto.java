@@ -18,4 +18,12 @@ public class MessageDto {
     private String email;
     @NotBlank
     private String message;
+    @NotBlank
+    private String vin;
+
+    private String frame;
+    @NotBlank
+    private String model;
+    @NotBlank
+    private String detail_name;
 }

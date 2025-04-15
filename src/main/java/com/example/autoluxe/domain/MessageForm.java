@@ -25,4 +25,12 @@ public class MessageForm {
     private String phone;
 
     private String message;
+
+    private String vin;
+
+    private String frame;
+
+    private String model;
+
+    private String detail_name;
 }

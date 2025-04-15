@@ -10,6 +10,7 @@ import com.example.autoluxe.payload.changepass.ChangeUserPass;
 import com.example.autoluxe.payload.getbuytoken.BuyTokenRequest;
 import com.example.autoluxe.service.AccountService;
 import com.example.autoluxe.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -50,20 +51,20 @@ public class ProfileController {
     @PatchMapping("/accounts/changename/{id}")
     public UserAccount changeName(@PathVariable(name = "id")Long accountId,
                                                   @AuthenticationPrincipal User user,
-                                                  @RequestBody UserNameRequest request) {
+                                                  @RequestBody @Valid UserNameRequest request) {
 
        return  userService.changeUserName(user.getId(),accountId,request);
     }
     @PatchMapping("/accounts/changelogin/{id}")
     public UserAccount changeLogin(@PathVariable(name = "id")Long accountId,
                                                    @AuthenticationPrincipal User user,
-                                                   @RequestBody UserLoginRequest request) {
+                                                   @RequestBody @Valid UserLoginRequest request) {
        return   userService.changeUserLogin(user.getId(),accountId,request);
     }
     @PatchMapping("/accounts/changepass/{id}")
     public UserAccount changePass(@PathVariable(name = "id")Long accountId,
                                                   @AuthenticationPrincipal User user,
-                                                  @RequestBody ChangeUserPass request) {
+                                                  @RequestBody @Valid ChangeUserPass request) {
         return userService.changeUserPass(user.getId(),accountId,request);
     }
 
@@ -77,7 +78,7 @@ public class ProfileController {
     consumes = MediaType.APPLICATION_JSON_VALUE)
     public void buyAccount(@PathVariable(name = "id") Long id,
                            @AuthenticationPrincipal User user,
-                           @RequestBody BuyTokenRequest request) {
+                           @RequestBody @Valid BuyTokenRequest request) {
         userService.getByToken(user.getId(), id,request);
 
     }
