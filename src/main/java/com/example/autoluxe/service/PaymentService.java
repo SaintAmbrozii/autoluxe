@@ -1,7 +1,10 @@
 package com.example.autoluxe.service;
 
 import com.example.autoluxe.domain.Payments;
+import com.example.autoluxe.domain.User;
 import com.example.autoluxe.dto.PaymentDto;
+import com.example.autoluxe.dto.searchcriteria.PaymentSearchCriteria;
+import com.example.autoluxe.dto.specifications.PaymentSpecs;
 import com.example.autoluxe.repo.PaymentRepo;
 import com.example.autoluxe.utils.DateUtils;
 
@@ -30,8 +33,20 @@ public class PaymentService {
                 .map(PaymentDto::toDto);
     }
 
+    public Page<PaymentDto> findByCriteria(User user, PaymentSearchCriteria criteria) {
+        return paymentRepo
+                .findAll(PaymentSpecs.accordingToReportProperties(user, criteria), criteria.getPageable())
+                .map(PaymentDto::toDto);
+    }
+
+    public Page<PaymentDto> findByUsersCriteria(PaymentSearchCriteria criteria) {
+        return paymentRepo
+                .findAll(PaymentSpecs.accordingToCriteriaProperties(criteria), criteria.getPageable())
+                .map(PaymentDto::toDto);
+    }
+
     public Long countAllManagerId(Long id) {
-        return countAllManagerId(id);
+        return paymentRepo.countAllByManagerId(id);
     }
 
     public Long countAllPayments() {
