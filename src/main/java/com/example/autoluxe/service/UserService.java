@@ -329,6 +329,7 @@ public class UserService {
     public UserDto addBalance(Long id, User user, AddBalance balance) {
         User inDB = userRepo.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
         inDB.setBalance(BigDecimal.valueOf(balance.getBalance()));
+
         Payments payments = new Payments();
         payments.setTimestamp(ZonedDateTime.now());
         payments.setManagerId(user.getId());
