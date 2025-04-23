@@ -5,13 +5,13 @@ import jakarta.validation.Payload;
 
 import java.lang.annotation.*;
 
-@Documented
-@Constraint(validatedBy = ContactNumberValidator.class)
-@Target( { ElementType.METHOD, ElementType.FIELD })
+@Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ContactNumberConstraint {
+@Documented
+@Constraint(validatedBy = NullOrNotBlankValidator.class)
+public @interface NullOrNotBlank {
 
-    String message() default "Неправильный формат номера телефона";
+    String message() default "Поле должно быть null или не пустым.";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }
