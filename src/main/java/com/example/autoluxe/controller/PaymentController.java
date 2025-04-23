@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -77,6 +78,27 @@ public class PaymentController {
         searchCriteria.validate();
         return PaymentPage.of(paymentService.findByCriteria(user, searchCriteria));
     }
+
+    // экспорт из платежей админа цсв
+    @PostMapping(value = "list/export/csv", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public @ResponseBody
+    byte[] exportCsv(@AuthenticationPrincipal User user,
+                     @RequestBody PaymentSearchCriteria searchCriteria) throws Exception {
+        log.debug(">>> exportCsv payments {}", searchCriteria);
+        searchCriteria.validate();
+        return paymentService.createExportCSVFile(user, searchCriteria);
+    }
+
+    // экспорт из платежей админа хлс
+    @PostMapping(value = "list/export/xls", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public @ResponseBody
+    byte[] exportXls(@AuthenticationPrincipal User user,
+                     @RequestBody PaymentSearchCriteria searchCriteria) throws Exception {
+        log.debug(">>> exportXls payments {}", searchCriteria);
+        searchCriteria.validate();
+        return paymentService.createExportXLSFile(user, searchCriteria);
+    }
+
 
 
 

@@ -9,7 +9,7 @@ import java.util.List;
 @Service
 public class ReportService {
 
-    public byte[] composeCSV(String contract, List<Payments> payments, boolean withDates) throws Exception {
+    public byte[] composeCSV(List<Payments> payments, boolean withDates) throws Exception {
         if (payments == null || payments.isEmpty())
             return new byte[0];
 
@@ -17,7 +17,7 @@ public class ReportService {
 
     }
 
-    public byte[] composeXLS(String contract, List<Payments> payments, boolean withDates) throws Exception {
+    public byte[] composeXLS(List<Payments> payments, boolean withDates) throws Exception {
         if (payments == null || payments.isEmpty())
             return new byte[0];
 
