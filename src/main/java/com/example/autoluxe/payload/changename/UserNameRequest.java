@@ -1,5 +1,6 @@
 package com.example.autoluxe.payload.changename;
 
+import com.example.autoluxe.utils.validator.NullOrNotBlank;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,6 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserNameRequest {
 
-    @NotBlank
-    String name;
+    @NullOrNotBlank(message = "Имя не должно быть пустым.")
+    private String name;
 }

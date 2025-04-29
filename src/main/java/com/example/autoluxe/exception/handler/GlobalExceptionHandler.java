@@ -1,5 +1,6 @@
-package com.example.autoluxe.exception;
+package com.example.autoluxe.exception.handler;
 
+import com.example.autoluxe.exception.AutoluxeException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageNotReadableException;

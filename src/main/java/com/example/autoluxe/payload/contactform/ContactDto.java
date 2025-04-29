@@ -1,6 +1,7 @@
 package com.example.autoluxe.payload.contactform;
 
 import com.example.autoluxe.utils.validator.ContactNumberConstraint;
+import com.example.autoluxe.utils.validator.NullOrNotBlank;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -8,11 +9,9 @@ import lombok.Data;
 @Data
 public class ContactDto {
 
-    @NotBlank
-    @Size(min = 2,max = 20)
+    @NotBlank(message = "Имя не должно быть пустым.")
     private String name;
-    @NotBlank
-    @Size(min = 8,max = 14)
+    @NotBlank(message = "Телефон не должно быть пустым.")
     @ContactNumberConstraint
     private String phone;
 }

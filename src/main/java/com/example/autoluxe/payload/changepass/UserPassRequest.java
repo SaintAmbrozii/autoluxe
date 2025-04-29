@@ -1,5 +1,6 @@
 package com.example.autoluxe.payload.changepass;
 
+import com.example.autoluxe.utils.validator.NullOrNotBlank;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,6 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserPassRequest {
 
-    @NotBlank
+    @NullOrNotBlank(message = "Пароль не должно быть пустым.")
     private String pass;
 }

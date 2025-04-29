@@ -1,6 +1,7 @@
 package com.example.autoluxe.dto;
 
 import com.example.autoluxe.utils.validator.ContactNumberConstraint;
+import com.example.autoluxe.utils.validator.NullOrNotBlank;
 import com.example.autoluxe.utils.validator.ValidEmail;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -10,20 +11,20 @@ public class MessageDto {
 
     @NotBlank
     private String name;
+    @NotBlank
     @ContactNumberConstraint
-    @NotBlank
     private String phone;
+    @NotBlank
     @ValidEmail
-    @NotBlank
     private String email;
-    @NotBlank
+    @NullOrNotBlank(message = "Сообщение не должно быть пустым.")
     private String message;
-    @NotBlank
+    @NullOrNotBlank(message = "Вин не должно быть пустым.")
     private String vin;
 
     private String frame;
-    @NotBlank
+    @NullOrNotBlank(message = "Модель не должно быть пустым.")
     private String model;
-    @NotBlank
+    @NullOrNotBlank(message = "Имя детали не должно быть пустым.")
     private String detail_name;
 }

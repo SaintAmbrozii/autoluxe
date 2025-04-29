@@ -2,6 +2,7 @@ package com.example.autoluxe.dto;
 
 import com.example.autoluxe.domain.User;
 import com.example.autoluxe.domain.UserAccount;
+import com.example.autoluxe.utils.MoneyUtils;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,11 +20,9 @@ public class UserDto {
 
     private String email;
 
-    private BigDecimal balance;
+    private String balance;
 
     private String phone;
-
-
 
 
     
@@ -33,7 +32,7 @@ public class UserDto {
         dto.setEmail(user.getEmail());
         dto.setName(user.getName());
         dto.setPhone(user.getPhone());
-        dto.setBalance(user.getBalance());
+        dto.balance = MoneyUtils.formatRU(user.getBalance().doubleValue());
         return dto;
     }
 }

@@ -1,5 +1,6 @@
 package com.example.autoluxe.payload.changelogin;
 
+import com.example.autoluxe.utils.validator.NullOrNotBlank;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,6 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserLoginRequest {
 
-    @NotBlank
+    @NullOrNotBlank(message = "Логин не должно быть пустым.")
     private String login;
 }
