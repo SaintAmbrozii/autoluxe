@@ -8,6 +8,7 @@ import com.example.autoluxe.domain.User;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -23,10 +24,15 @@ public class MailService {
 
 
     private static final String TEMPLATE_NAME = "emailTemplate";
+    private static final String TEMPLATE_ZVONOK = "zvonok";
     private static final String SPRING_LOGO_IMAGE = "templates/images/spring.png";
     private static final String PNG_MIME = "image/png";
     private static final String MAIL_SUBJECT = "Registration Confirmation";
+    private static final String MAIL_CONTACT_FORM = "User get contact";
     private static final String MAIL_FROM = "autoluxe@mail.ru";
+
+    @Value("${ADMIN_MAIL}")
+    private String adminEmail;
 
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
@@ -52,6 +58,27 @@ public class MailService {
         ctx.setVariable("url", link);
 
         final String htmlContent = this.templateEngine.process(TEMPLATE_NAME, ctx);
+
+        email.setText(htmlContent, true);
+
+
+        mailSender.send(mimeMessage);
+    }
+
+    public void sendContactForm(MailType type, String name, String phone) throws MessagingException {
+
+        final MimeMessage mimeMessage = this.mailSender.createMimeMessage();
+        final MimeMessageHelper email = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+
+        email.setTo(adminEmail);
+        email.setSubject(MAIL_CONTACT_FORM);
+        email.setFrom(MAIL_FROM);
+
+        final Context ctx = new Context(LocaleContextHolder.getLocale());
+        ctx.setVariable("name", name);
+        ctx.setVariable("phone", phone);
+
+        final String htmlContent = this.templateEngine.process(TEMPLATE_ZVONOK, ctx);
 
         email.setText(htmlContent, true);
 

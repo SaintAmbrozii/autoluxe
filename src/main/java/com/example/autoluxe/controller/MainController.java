@@ -33,13 +33,6 @@ public class MainController {
 
     }
 
-    @PostMapping("send")
-    public ResponseEntity<ApiResponse> sendContact(@RequestBody @Valid MessageDto dto) {
 
-        messageFormService.save(dto);
-
-        return ResponseEntity.ok().body(new ApiResponse(true,"Send message susesfully!"));
-
-    }
 
 }

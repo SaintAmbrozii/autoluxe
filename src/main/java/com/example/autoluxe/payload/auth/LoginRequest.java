@@ -13,7 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class LoginRequest {
 
-    @NotBlank(message = "Почта не должно быть пустым.")
+
     @ValidEmail
     private String email;
     @NotBlank(message = "Пароль не должно быть пустым.")

@@ -15,14 +15,13 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SignUpRequest {
 
-    @NullOrNotBlank(message = "Почта не должно быть пустой.")
+
     @ValidEmail
     private String email;
     @NullOrNotBlank(message = "Пароль не должно быть пустым.")
     private String password;
     @NullOrNotBlank(message = "Имя не должно быть пустым.")
     private String name;
-    @NullOrNotBlank(message = "Телефон не должно быть пустым.")
     @ContactNumberConstraint
     private String phone;
 

@@ -11,7 +11,6 @@ public class ContactDto {
 
     @NotBlank(message = "Имя не должно быть пустым.")
     private String name;
-    @NotBlank(message = "Телефон не должно быть пустым.")
     @ContactNumberConstraint
     private String phone;
 }

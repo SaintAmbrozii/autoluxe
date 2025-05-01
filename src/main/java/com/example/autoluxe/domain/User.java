@@ -62,6 +62,10 @@ public class User implements UserDetails, Serializable {
 
     private Boolean active=false;
 
+    @ToString.Exclude
+    @OneToMany(mappedBy = "user",orphanRemoval = true)
+    private List<MailSenderForm> contacts;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(new SimpleGrantedAuthority(role.name()));
