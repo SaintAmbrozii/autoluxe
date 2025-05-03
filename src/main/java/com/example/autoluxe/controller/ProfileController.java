@@ -69,8 +69,8 @@ public class ProfileController {
     }
 
     @PatchMapping("/addsub")
-    public void addSubUser(@AuthenticationPrincipal User user) {
-        userService.addSubUser(user.getId());
+    public UserAccountDto addSubUser(@AuthenticationPrincipal User user) {
+        return userService.addSubUser(user.getId());
     }
 
     @PatchMapping(value = "/accounts/buy/{id}",

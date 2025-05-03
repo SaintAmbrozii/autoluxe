@@ -7,10 +7,7 @@ import com.example.autoluxe.payload.contactform.ContactDto;
 import com.example.autoluxe.service.ContactFormService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping
@@ -19,9 +16,15 @@ public class MainController {
     private final ContactFormService contactFormService;
     private final ContactFormEventListener contactFormEventListener;
 
-    public MainController(ContactFormService contactFormService, ContactFormEventListener contactFormEventListener) {
+    public MainController(ContactFormService contactFormService,
+                          ContactFormEventListener contactFormEventListener) {
         this.contactFormService = contactFormService;
         this.contactFormEventListener = contactFormEventListener;
+    }
+
+    @GetMapping
+    public String message() {
+        return String.valueOf("доступна главная страница");
     }
 
     @PostMapping("contact")

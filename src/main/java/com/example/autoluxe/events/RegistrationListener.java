@@ -23,7 +23,7 @@ public class RegistrationListener implements ApplicationListener<RegistrationCom
     private final MailService mailService;
     private final JavaMailSender mailSender;
 
-    private static final String basicUrl = "http://localhost:8080/api/auth";
+    private static final String basicUrl = "http://194.87.208.209/api/auth";
 
     private static final String TEMPLATE_NAME = "registration";
     private static final String MAIL_SUBJECT = "Registration Confirmation";

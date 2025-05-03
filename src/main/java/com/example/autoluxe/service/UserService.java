@@ -116,7 +116,7 @@ public class UserService {
 
     }
 
-    public void addSubUser(Long userId) {
+    public UserAccountDto addSubUser(Long userId) {
 
         User inDB = userRepo.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
@@ -135,7 +135,8 @@ public class UserService {
 
         UserAccount account = new UserAccount();
         account.setEpcId(response.getEpc_id());
-        accountRepo.save(account);
+        UserAccount newAccount =  accountRepo.save(account);
+        return UserAccountDto.toDto(newAccount);
 
       //  getUserAccountsListener.onApplicationEvent(new GetUserAccountsEvent(inDB.getId()));
 
