@@ -2,11 +2,9 @@ package com.example.autoluxe.service;
 
 import com.example.autoluxe.domain.User;
 import com.example.autoluxe.domain.UserAccount;
-import com.example.autoluxe.exception.ApiMethodException;
-import com.example.autoluxe.exception.ApiTokenNotFoundException;
+import com.example.autoluxe.exception.ApiClientException;
 import com.example.autoluxe.exception.NotFoundException;
 import com.example.autoluxe.payload.confirmbuy.ConfirmBuyRequest;
-import com.example.autoluxe.payload.confirmbuy.ConfirmByAccountDto;
 import com.example.autoluxe.payload.confirmbuy.ConfirmByResponse;
 import com.example.autoluxe.payload.getuseraccounts.GetUserAccountResponse;
 import com.example.autoluxe.payload.getuseraccounts.GetUserAccounts;
@@ -14,14 +12,10 @@ import com.example.autoluxe.payload.getusertoken.GetUserTokenRequest;
 import com.example.autoluxe.payload.getusertoken.GetUserTokenResponse;
 import com.example.autoluxe.repo.AccountRepo;
 import com.example.autoluxe.repo.UserRepo;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestTemplate;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -60,6 +54,12 @@ public class ApiService {
                 uri(EPIC_URI + "get_user_token").
                 body(tokenRequest).
                 retrieve()
+                .onStatus(
+                        HttpStatusCode::is4xxClientError,
+                        (req, resp) -> {
+                            throw new ApiClientException();
+                        }
+                )
                 .body(GetUserTokenResponse.class);
 
         inDB.setEpic_token(response.getToken());
@@ -89,6 +89,12 @@ public class ApiService {
                 contentType(MediaType.APPLICATION_JSON)
                 .body(request).
                 retrieve()
+                .onStatus(
+                        HttpStatusCode::is4xxClientError,
+                        (req, resp) -> {
+                            throw new ApiClientException();
+                        }
+                )
                 .body(GetUserAccountResponse.class);
 
         List<UserAccount> accounts = accountRepo.findAllByUserId(inDB.getId());
@@ -132,6 +138,12 @@ public class ApiService {
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .retrieve()
+                .onStatus(
+                        HttpStatusCode::is4xxClientError,
+                        (req, resp) -> {
+                            throw new ApiClientException();
+                        }
+                )
                 .body(ConfirmByResponse.class);
 
         List<UserAccount> toEntity = response.getAccounts().stream().map(a-> {

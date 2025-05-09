@@ -58,7 +58,7 @@ public class PaymentController {
 
     @GetMapping("countallmanager") //счетчик платежей админа
     public Long countAllManager(@AuthenticationPrincipal User user){
-        return paymentRepo.countAllByManagerId(user.getId());
+        return paymentService.countAllManagerId(user.getId());
     }
 
     @GetMapping("list") //страница платежей админа

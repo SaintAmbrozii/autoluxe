@@ -1,7 +1,6 @@
 package com.example.autoluxe.service;
 
 
-import com.example.autoluxe.domain.Calculate;
 import com.example.autoluxe.domain.Payments;
 import com.example.autoluxe.domain.User;
 import com.example.autoluxe.domain.UserAccount;
@@ -10,6 +9,7 @@ import com.example.autoluxe.dto.UserDto;
 import com.example.autoluxe.events.BuyEpcTokenEvent;
 import com.example.autoluxe.events.BuyEpcTokenEventListener;
 import com.example.autoluxe.events.GetUserAccountsListener;
+import com.example.autoluxe.exception.ApiClientException;
 import com.example.autoluxe.exception.NotFoundException;
 import com.example.autoluxe.payload.addbalance.AddBalance;
 import com.example.autoluxe.payload.addsubuser.AddSubUserRequest;
@@ -27,14 +27,14 @@ import com.example.autoluxe.payload.getusertoken.GetUserTokenResponse;
 import com.example.autoluxe.payload.hideuseracc.HideAccRequest;
 import com.example.autoluxe.repo.AccountRepo;
 import com.example.autoluxe.repo.UserRepo;
-import com.example.autoluxe.utils.DateUtils;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -131,7 +131,14 @@ public class UserService {
                 uri(EPIC_URI + "add_sub_user").
                 body(request).
                 retrieve()
+                .onStatus(
+                        HttpStatusCode::is4xxClientError,
+                        (req, resp) -> {
+                            throw new ApiClientException();
+                        }
+                )
                 .body(AddSubUserResponse.class);
+
 
         UserAccount account = new UserAccount();
         account.setEpcId(response.getEpc_id());
@@ -162,6 +169,12 @@ public class UserService {
                 uri(EPIC_URI + "hide_acc").
                 body(request).
                 retrieve()
+                .onStatus(
+                        HttpStatusCode::is4xxClientError,
+                        (req, resp) -> {
+                            throw new ApiClientException();
+                        }
+                )
                 .toBodilessEntity();
 
         account.setHide(true);
@@ -191,6 +204,12 @@ public class UserService {
                 uri(EPIC_URI + "change_user_name").
                 body(request).
                 retrieve()
+                .onStatus(
+                        HttpStatusCode::is4xxClientError,
+                        (req, resp) -> {
+                            throw new ApiClientException();
+                        }
+                )
                 .toBodilessEntity();
 
         account.setName(userNameRequest.getName());
@@ -223,6 +242,12 @@ public class UserService {
                 uri(EPIC_URI + "change_user_login").
                 body(request).
                 retrieve()
+                .onStatus(
+                        HttpStatusCode::is4xxClientError,
+                        (req, resp) -> {
+                            throw new ApiClientException();
+                        }
+                )
                 .toBodilessEntity();
 
         account.setLogin(loginRequest.getLogin());
@@ -253,6 +278,12 @@ public class UserService {
                 uri(EPIC_URI + "change_user_pass").
                 body(request).
                 retrieve()
+                .onStatus(
+                        HttpStatusCode::is4xxClientError,
+                        (req, resp) -> {
+                            throw new ApiClientException();
+                        }
+                )
                 .toBodilessEntity();
 
         account.setPass(userPass.getPass());
@@ -301,6 +332,12 @@ public class UserService {
                     uri(EPIC_URI + "get_buy_token").
                     body(request).
                     retrieve()
+                    .onStatus(
+                            HttpStatusCode::is4xxClientError,
+                            (req, resp) -> {
+                                throw new ApiClientException();
+                            }
+                    )
                     .body(GetByTokenResponse.class);
 
             buyEpcTokenEventListener.onApplicationEvent(new BuyEpcTokenEvent(response.getToken(),inDB.getEpic_token()));

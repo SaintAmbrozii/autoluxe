@@ -61,6 +61,7 @@ public class PaymentService {
         return reportService.composeXLS(findPaymentsByCriteria(user, searchCriteria),user.getActive());
     }
 
+
     public Long countAllManagerId(Long id) {
         return paymentRepo.countAllByManagerId(id);
     }
