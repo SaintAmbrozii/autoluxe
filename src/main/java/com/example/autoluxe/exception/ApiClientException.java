@@ -1,11 +1,16 @@
 package com.example.autoluxe.exception;
 
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 
-public class ApiClientException extends HttpClientErrorException {
+@Getter
+public class ApiClientException extends RuntimeException {
 
-    public ApiClientException() {
-        super(HttpStatus.BAD_REQUEST);
+    private final HttpStatus status;
+
+    public ApiClientException(String message, HttpStatus status) {
+        super(message);
+        this.status = status;
     }
 }

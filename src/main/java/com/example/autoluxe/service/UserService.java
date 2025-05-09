@@ -27,6 +27,7 @@ import com.example.autoluxe.payload.getusertoken.GetUserTokenResponse;
 import com.example.autoluxe.payload.hideuseracc.HideAccRequest;
 import com.example.autoluxe.repo.AccountRepo;
 import com.example.autoluxe.repo.UserRepo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,6 +40,7 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class UserService {
 
@@ -108,6 +110,13 @@ public class UserService {
                 uri(EPIC_URI + "get_user_token").
                 body(tokenRequest).
                 retrieve()
+                .onStatus(
+                        HttpStatusCode::is4xxClientError,
+                        (req, resp) -> {
+                            var msg = "Failed to create user token response from string: %s";
+                            throw new ApiClientException(msg,HttpStatus.INTERNAL_SERVER_ERROR);
+                        }
+                )
                 .body(GetUserTokenResponse.class);
 
         inDB.setEpic_token(response.getToken());
@@ -134,7 +143,8 @@ public class UserService {
                 .onStatus(
                         HttpStatusCode::is4xxClientError,
                         (req, resp) -> {
-                            throw new ApiClientException();
+                            var msg = "Failed to create add sub user response from string: %s";
+                            throw new ApiClientException(msg,HttpStatus.INTERNAL_SERVER_ERROR);
                         }
                 )
                 .body(AddSubUserResponse.class);
@@ -172,7 +182,8 @@ public class UserService {
                 .onStatus(
                         HttpStatusCode::is4xxClientError,
                         (req, resp) -> {
-                            throw new ApiClientException();
+                            var msg = "Failed to hide account response from string: %s";
+                            throw new ApiClientException(msg,HttpStatus.INTERNAL_SERVER_ERROR);
                         }
                 )
                 .toBodilessEntity();
@@ -207,7 +218,8 @@ public class UserService {
                 .onStatus(
                         HttpStatusCode::is4xxClientError,
                         (req, resp) -> {
-                            throw new ApiClientException();
+                            var msg = "Failed to chane user name response from string: %s";
+                            throw new ApiClientException(msg,HttpStatus.INTERNAL_SERVER_ERROR);
                         }
                 )
                 .toBodilessEntity();
@@ -245,7 +257,8 @@ public class UserService {
                 .onStatus(
                         HttpStatusCode::is4xxClientError,
                         (req, resp) -> {
-                            throw new ApiClientException();
+                            var msg = "Failed to change user login response from string: %s";
+                            throw new ApiClientException(msg,HttpStatus.INTERNAL_SERVER_ERROR);
                         }
                 )
                 .toBodilessEntity();
@@ -281,7 +294,8 @@ public class UserService {
                 .onStatus(
                         HttpStatusCode::is4xxClientError,
                         (req, resp) -> {
-                            throw new ApiClientException();
+                            var msg = "Failed tochange user pass response from string: %s";
+                            throw new ApiClientException(msg,HttpStatus.INTERNAL_SERVER_ERROR);
                         }
                 )
                 .toBodilessEntity();
@@ -335,7 +349,8 @@ public class UserService {
                     .onStatus(
                             HttpStatusCode::is4xxClientError,
                             (req, resp) -> {
-                                throw new ApiClientException();
+                                var msg = "Failed to get buy token response from string: %s";
+                                throw new ApiClientException(msg,HttpStatus.INTERNAL_SERVER_ERROR);
                             }
                     )
                     .body(GetByTokenResponse.class);

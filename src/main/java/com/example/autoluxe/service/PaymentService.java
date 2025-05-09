@@ -45,6 +45,11 @@ public class PaymentService {
                 .map(PaymentDto::toDto);
     }
 
+    public List<Payments> findPaymentsByUserCriteria(PaymentSearchCriteria criteria) {
+        return paymentRepo.findAll(PaymentSpecs.accordingToCriteriaProperties(criteria),criteria.getPageable())
+                .getContent();
+    }
+
     public List<Payments> findPaymentsByCriteria(User user, PaymentSearchCriteria criteria) {
         return paymentRepo
                 .findAll(PaymentSpecs.accordingToReportProperties(user, criteria), criteria.getPageable())
@@ -59,6 +64,15 @@ public class PaymentService {
     public byte[] createExportXLSFile(User user, PaymentSearchCriteria searchCriteria) throws Exception {
         log.debug(">>> createExportXLSFile for {}", user);
         return reportService.composeXLS(findPaymentsByCriteria(user, searchCriteria),user.getActive());
+    }
+
+    public byte[] createExportUsersCSVFile(PaymentSearchCriteria searchCriteria) throws Exception {
+
+        return reportService.composeCSV(findPaymentsByUserCriteria(searchCriteria),true);
+    }
+    public byte[] createExportUsersXLSFile( PaymentSearchCriteria searchCriteria) throws Exception {
+
+        return reportService.composeXLS(findPaymentsByUserCriteria(searchCriteria),true);
     }
 
 

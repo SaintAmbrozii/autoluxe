@@ -57,7 +57,8 @@ public class ApiService {
                 .onStatus(
                         HttpStatusCode::is4xxClientError,
                         (req, resp) -> {
-                            throw new ApiClientException();
+                            var msg = "Failed to get user token response from string: %s";
+                            throw new ApiClientException(msg,HttpStatus.INTERNAL_SERVER_ERROR);
                         }
                 )
                 .body(GetUserTokenResponse.class);
@@ -92,7 +93,8 @@ public class ApiService {
                 .onStatus(
                         HttpStatusCode::is4xxClientError,
                         (req, resp) -> {
-                            throw new ApiClientException();
+                            var msg = "Failed to get user accounts response from string: %s";
+                            throw new ApiClientException(msg,HttpStatus.INTERNAL_SERVER_ERROR);
                         }
                 )
                 .body(GetUserAccountResponse.class);
@@ -141,7 +143,8 @@ public class ApiService {
                 .onStatus(
                         HttpStatusCode::is4xxClientError,
                         (req, resp) -> {
-                            throw new ApiClientException();
+                            var msg = "Failed to confirm buy token response from string: %s";
+                            throw new ApiClientException(msg,HttpStatus.INTERNAL_SERVER_ERROR);
                         }
                 )
                 .body(ConfirmByResponse.class);
