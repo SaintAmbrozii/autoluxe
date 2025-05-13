@@ -42,6 +42,23 @@ public class PaymentController {
         return PaymentPage.of(paymentRepo.findAll(pageable).map(PaymentDto::toDto));
     }
 
+    // экспорт из платежей пользователей цсв
+    @PostMapping(value = "export/csv", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public @ResponseBody
+    byte[] exportUsersCsv(@RequestBody PaymentSearchCriteria searchCriteria) throws Exception {
+        log.debug(">>> exportCsv payments {}", searchCriteria);
+        searchCriteria.validate();
+        return paymentService.createExportUsersCSVFile(searchCriteria);
+    }
+    // экспорт из платежей пользователей хмл
+    @PostMapping(value = "export/xls", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public @ResponseBody
+    byte[] exportUsersXls(@RequestBody PaymentSearchCriteria searchCriteria) throws Exception {
+        log.debug(">>> exportXls payments {}", searchCriteria);
+        searchCriteria.validate();
+        return paymentService.createExportUsersXLSFile(searchCriteria);
+    }
+
     @PostMapping("filter") //поиск по платежам всех юзеров
     public PaymentPage filter(@RequestBody PaymentSearchCriteria searchCriteria) {
         log.debug("PaymentSearchCriteria={}", searchCriteria);

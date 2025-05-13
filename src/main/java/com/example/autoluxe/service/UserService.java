@@ -6,6 +6,7 @@ import com.example.autoluxe.domain.User;
 import com.example.autoluxe.domain.UserAccount;
 import com.example.autoluxe.dto.UserAccountDto;
 import com.example.autoluxe.dto.UserDto;
+import com.example.autoluxe.dto.UserProfileDto;
 import com.example.autoluxe.events.BuyEpcTokenEvent;
 import com.example.autoluxe.events.BuyEpcTokenEventListener;
 import com.example.autoluxe.events.GetUserAccountsListener;
@@ -374,8 +375,15 @@ public class UserService {
 
 
     public UserDto findById(Long id) {
-        User inDB = userRepo.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
+        User inDB = userRepo.findById(id).
+                orElseThrow(() -> new NotFoundException("User not found"));
         return UserDto.toDto(inDB);
+    }
+
+    public UserProfileDto findByProfile(Long id) {
+        User inDB = userRepo.findById(id).
+                orElseThrow(() -> new NotFoundException("User not found"));
+        return UserProfileDto.toDto(inDB);
     }
 
     @Transactional
@@ -398,9 +406,18 @@ public class UserService {
                 findById(id).orElseThrow(() -> new NotFoundException("User not found"));
         inDB.setEmail(user.getEmail());
         inDB.setName(user.getName());
-        inDB.setPassword(encoder.encode(user.getPassword()));
         return UserDto.toDto(inDB);
     }
+
+    public UserProfileDto updateProfile (Long id, User user) {
+        User inDB = userRepo.
+                findById(id).orElseThrow(() -> new NotFoundException("User not found"));
+        inDB.setEmail(user.getEmail());
+        inDB.setName(user.getName());
+        inDB.setPassword(encoder.encode(user.getPassword()));
+        return UserProfileDto.toDto(inDB);
+    }
+
 
     public User createTestUser(User user) {
        return userRepo.save(user);
