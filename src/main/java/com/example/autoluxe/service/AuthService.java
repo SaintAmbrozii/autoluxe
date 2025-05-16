@@ -1,22 +1,18 @@
 package com.example.autoluxe.service;
 
 import com.example.autoluxe.config.AppProperties;
-import com.example.autoluxe.domain.Role;
-import com.example.autoluxe.domain.Token;
-import com.example.autoluxe.domain.User;
-import com.example.autoluxe.domain.VerificationToken;
+import com.example.autoluxe.domain.*;
 import com.example.autoluxe.events.*;
 import com.example.autoluxe.exception.AppException;
-import com.example.autoluxe.payload.auth.ApiResponse;
-import com.example.autoluxe.payload.auth.LoginRequest;
-import com.example.autoluxe.payload.auth.LoginResponse;
-import com.example.autoluxe.payload.auth.SignUpRequest;
+import com.example.autoluxe.exception.AutoluxeException;
+import com.example.autoluxe.payload.auth.*;
 import com.example.autoluxe.payload.jwt.TokenResponse;
 import com.example.autoluxe.repo.UserRepo;
 import com.example.autoluxe.security.TokenProvider;
 import com.example.autoluxe.utils.CookieUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,16 +23,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class AuthService {
@@ -53,6 +49,11 @@ public class AuthService {
     private final GetUserAccountsListener getUserAccountsListener;
     private final AccountService accountService;
     private final RegistrationListener registrationListener;
+    private final PasswordResetTokenService passwordResetTokenService;
+    private final ResetPasswordListener resetPasswordListener;
+
+    @Value("${BASIC_URL}")
+    private String basicUrl;
 
     public AuthService(AuthenticationManager authenticationManager, UserService userService,
                        UserRepo userRepo, TokenProvider tokenProvider,
@@ -60,7 +61,8 @@ public class AuthService {
                        CookieUtil cookieUtil, AppProperties properties,
                        GetUserTokenListener getUserTokenListener,
                        GetUserAccountsListener getUserAccountsListener, AccountService accountService,
-                       RegistrationListener registrationListener) {
+                       RegistrationListener registrationListener, PasswordResetTokenService passwordResetTokenService,
+                       ResetPasswordListener resetPasswordListener) {
         this.authenticationManager = authenticationManager;
         this.userService = userService;
         this.userRepo = userRepo;
@@ -73,7 +75,15 @@ public class AuthService {
         this.getUserAccountsListener = getUserAccountsListener;
         this.accountService = accountService;
         this.registrationListener = registrationListener;
+        this.passwordResetTokenService = passwordResetTokenService;
+        this.resetPasswordListener = resetPasswordListener;
     }
+
+    @ModelAttribute("passwordResetForm")
+    public PasswordResetDto passwordReset() {
+        return new PasswordResetDto();
+    }
+
 
 
     public ResponseEntity<TokenResponse> authenticateUser(LoginRequest loginRequest,
@@ -192,7 +202,54 @@ public class AuthService {
         return ResponseEntity.ok().headers(responseHeaders).body(loginResponse);
     }
 
+    public ResponseEntity<ApiResponse> resetPassword(String email) {
 
+        Optional<User> inDb = userRepo.findUserByEmail(email);
+        if (inDb.isPresent()) {
+            User user = inDb.get();
+            String token = UUID.randomUUID().toString();
+            passwordResetTokenService.createPasswordResetTokenForUser(user,token);
+
+            resetPasswordListener.onApplicationEvent(new ResetPasswordEvent(user,token));
+
+        } else {
+            var msg = "Email not found";
+            throw new AutoluxeException(msg,HttpStatus.BAD_REQUEST);
+        }
+        return ResponseEntity.ok(new ApiResponse(true,"Reset password sucessfully!"));
+
+    }
+
+    public ResponseEntity<String> changePassword(Model model,String token) {
+
+        String result = passwordResetTokenService.validatePasswordResetToken(token);
+        if (result !=null) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setLocation(URI.create(basicUrl + "/api/auth/savePassword"));
+            model.addAttribute("token",token);
+
+           return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
+        }
+       return ResponseEntity.ok("Not token exception");
+    }
+
+    @Transactional
+    public ResponseEntity<String> handlePasswordReset(@ModelAttribute("passwordResetForm")
+                                                          @Valid PasswordResetDto resetDto) {
+
+        PasswordResetToken passwordResetToken = passwordResetTokenService.findByToken(resetDto.getToken());
+
+        User user = passwordResetToken.getUser();
+        if (resetDto.getPassword().equals(resetDto.getConfirmPassword())) {
+            String updatedPassword = resetDto.getPassword();
+            userService.changeUserPassword(user,updatedPassword);
+
+            passwordResetTokenService.delete(passwordResetToken);
+        }
+
+        return ResponseEntity.ok("Пароль пользователя успешно обновлен");
+
+    }
 
 
 

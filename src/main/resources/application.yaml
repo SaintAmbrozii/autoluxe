@@ -52,4 +52,4 @@ JWT_REFRESH_COOKIE_NAME: refresh_token
 
 ADMIN_MAIL: samdim2011@mail.ru
 
-BASIC_URL: http://194.87.208.209/
+BASIC_URL: http://194.87.208.209

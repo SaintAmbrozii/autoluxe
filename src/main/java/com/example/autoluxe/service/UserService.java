@@ -424,6 +424,11 @@ public class UserService {
 
     }
 
+    public void changeUserPassword(User user, String password) {
+        user.setPassword(encoder.encode(password));
+        userRepo.save(user);
+    }
+
 
 
     public boolean doesUsernameExists(String username){

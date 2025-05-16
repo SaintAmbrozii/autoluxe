@@ -25,6 +25,7 @@ public class MailService {
 
     private static final String TEMPLATE_NAME = "emailTemplate";
     private static final String TEMPLATE_ZVONOK = "zvonok";
+    private static final String TEMPLATE_PASS = "changePassword";
     private static final String SPRING_LOGO_IMAGE = "templates/images/spring.png";
     private static final String PNG_MIME = "image/png";
     private static final String MAIL_SUBJECT = "Registration Confirmation";
@@ -61,9 +62,31 @@ public class MailService {
 
         email.setText(htmlContent, true);
 
+        mailSender.send(mimeMessage);
+    }
+
+    public void sendChangePassword(MailType type, User user, String link) throws MessagingException {
+
+        final MimeMessage mimeMessage = this.mailSender.createMimeMessage();
+        final MimeMessageHelper email = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+
+        email.setTo(user.getEmail());
+        email.setSubject(MAIL_SUBJECT);
+        email.setFrom(MAIL_FROM);
+
+        final Context ctx = new Context(LocaleContextHolder.getLocale());
+        ctx.setVariable("email", user.getEmail());
+        ctx.setVariable("name", user.getName());
+        ctx.setVariable("url", link);
+
+        final String htmlContent = this.templateEngine.process(TEMPLATE_PASS, ctx);
+
+        email.setText(htmlContent, true);
 
         mailSender.send(mimeMessage);
     }
+
+
 
     public void sendContactForm(MailType type, String name, String phone) throws MessagingException {
 
@@ -85,6 +108,7 @@ public class MailService {
 
         mailSender.send(mimeMessage);
     }
+
 
 
     public void send(final String to, final String subject, final String email) {
