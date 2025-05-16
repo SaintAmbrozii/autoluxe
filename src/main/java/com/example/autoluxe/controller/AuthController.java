@@ -5,10 +5,7 @@ package com.example.autoluxe.controller;
 import com.example.autoluxe.domain.*;
 import com.example.autoluxe.events.*;
 import com.example.autoluxe.exception.AppException;
-import com.example.autoluxe.payload.auth.ApiResponse;
-import com.example.autoluxe.payload.auth.LoginRequest;
-import com.example.autoluxe.payload.auth.LoginResponse;
-import com.example.autoluxe.payload.auth.SignUpRequest;
+import com.example.autoluxe.payload.auth.*;
 import com.example.autoluxe.payload.jwt.TokenResponse;
 import com.example.autoluxe.service.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,6 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -78,6 +76,22 @@ public class AuthController {
             @CookieValue(name = "refresh_token", required = false) String refreshToken) {
 
         return authService.logout(accessToken,refreshToken);
+    }
+
+    @PostMapping("/resetPassword")
+    public ResponseEntity<ApiResponse> resetPassword(@RequestParam("email") String email) {
+        return authService.resetPassword(email);
+    }
+
+    @PostMapping("/changePassword")
+    public ResponseEntity<String> changePassword(Model model,@RequestParam("token")String token) {
+        return authService.changePassword(model, token);
+
+    }
+
+    @PostMapping("/savePassword")
+    public ResponseEntity<String> updatePassword(@RequestBody @Valid PasswordResetDto passwordResetDto) {
+        return authService.handlePasswordReset(passwordResetDto);
     }
 
 
