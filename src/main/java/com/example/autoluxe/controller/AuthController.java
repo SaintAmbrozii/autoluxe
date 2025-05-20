@@ -57,7 +57,7 @@ public class AuthController {
         return authService.registerUser(signUpRequest, request);
     }
 
-    @GetMapping("/regitrationConfirm")
+    @GetMapping("/registrationConfirm")
     public ResponseEntity<ApiResponse> confirm(@RequestParam("token") String token) {
 
         return authService.confirm(token);

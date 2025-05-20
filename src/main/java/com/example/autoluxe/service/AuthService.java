@@ -108,8 +108,8 @@ public class AuthService {
 
         getUserAccountsListener.onApplicationEvent(new GetUserAccountsEvent(user.getId()));
 
-        addAccessTokenCookie(responseHeaders, accessToken);
-        addRefreshTokenCookie(responseHeaders, refreshToken);
+        addAccessTokenCookie(responseHeaders, access);
+        addRefreshTokenCookie(responseHeaders, refresh);
 
         return ResponseEntity.ok().headers(responseHeaders).body(tokenResponse);
     }
