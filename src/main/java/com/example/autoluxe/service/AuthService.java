@@ -141,7 +141,7 @@ public class AuthService {
 
         getUserTokenListener.onApplicationEvent(new GetUserTokenEvent(user.getId()));
 
-        registrationListener.onApplicationEvent(new RegistrationCompleteEvent(userAfterSaving,appUrl,request.getLocale()));
+        registrationListener.onApplicationEvent(new RegistrationCompleteEvent(userAfterSaving));
 
         return ResponseEntity.created(location)
                 .body(new ApiResponse(true, "User registered successfully!"));
@@ -151,13 +151,20 @@ public class AuthService {
 
         VerificationToken verificationToken = accountService.getVerificationToken(token);
 
-        User user = accountService.getUser(verificationToken.getToken());
+        if (verificationToken!=null) {
 
-        user.setActive(true);
-        userRepo.save(user);
+            User user = accountService.getUser(verificationToken.getToken());
 
-        return
-                ResponseEntity.ok(new ApiResponse(true, "User confirmed successfully!"));
+            user.setActive(true);
+            userRepo.save(user);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setLocation(URI.create(basicUrl + "/registrationSuccess"));
+
+            return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
+        }
+
+        return ResponseEntity.ok(new ApiResponse(true, "User confirmed successfully!"));
     }
 
     public ResponseEntity<TokenResponse> getRefreshToken(String refresh) {

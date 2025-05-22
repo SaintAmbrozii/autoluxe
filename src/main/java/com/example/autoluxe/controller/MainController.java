@@ -27,6 +27,11 @@ public class MainController {
         return String.valueOf("доступна главная страница");
     }
 
+    @GetMapping("registrationSuccess")
+    public String registreationSucess() {
+        return String.valueOf("регистрация пройденна");
+    }
+
     @PostMapping("contact")
     public ResponseEntity<ApiResponse> sendContact(@RequestBody @Valid ContactDto dto) {
 
