@@ -6,6 +6,8 @@ import lombok.Data;
 @Data
 public class UserAccountDto {
 
+    private Long id;
+
     private Integer epcId;
 
     private String login;
@@ -18,6 +20,7 @@ public class UserAccountDto {
 
     public static UserAccountDto toDto (UserAccount userAccount) {
         UserAccountDto accountDto = new UserAccountDto();
+        accountDto.setId(userAccount.getId());
         accountDto.setExpires(userAccount.getRFCExpires());
         accountDto.setName(userAccount.getName());
         accountDto.setPass(userAccount.getPass());
