@@ -132,7 +132,7 @@ public class SecurityConfig {
                                 .hasAuthority("ROLE_ADMIN")
                                 .anyRequest().authenticated())
                 .logout(logout->logout.addLogoutHandler(logoutService)
-                        .logoutUrl("api/users/auth/logout")
+                        .logoutUrl("api/auth/logout")
                         .logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext()))
                 .anonymous(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exception->exception.authenticationEntryPoint(jwtAuthEntryPoint))
