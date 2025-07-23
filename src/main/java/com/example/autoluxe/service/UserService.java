@@ -414,7 +414,9 @@ public class UserService {
                 findById(user.getId()).orElseThrow(() -> new NotFoundException("User not found"));
         inDB.setEmail(user.getEmail());
         inDB.setName(user.getName());
+        inDB.setPhone(user.getPhone());
         inDB.setPassword(encoder.encode(user.getPassword()));
+        userRepo.save(inDB);
         return UserProfileDto.toDto(inDB);
     }
 
