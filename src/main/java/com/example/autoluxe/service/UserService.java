@@ -409,9 +409,9 @@ public class UserService {
         return UserDto.toDto(inDB);
     }
 
-    public UserProfileDto updateProfile (Long id, User user) {
+    public UserProfileDto updateProfile (User user) {
         User inDB = userRepo.
-                findById(id).orElseThrow(() -> new NotFoundException("User not found"));
+                findById(user.getId()).orElseThrow(() -> new NotFoundException("User not found"));
         inDB.setEmail(user.getEmail());
         inDB.setName(user.getName());
         inDB.setPassword(encoder.encode(user.getPassword()));

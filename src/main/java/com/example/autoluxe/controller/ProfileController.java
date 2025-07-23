@@ -41,7 +41,7 @@ public class ProfileController {
     }
     @PatchMapping
     public UserProfileDto update (@AuthenticationPrincipal User user) {
-        return userService.updateProfile(user.getId(), user);
+        return userService.updateProfile(user);
     }
 
     @PatchMapping("/accounts/hide/{id}")
@@ -81,7 +81,6 @@ public class ProfileController {
                            @AuthenticationPrincipal User user,
                            @RequestBody @Valid BuyTokenRequest request) {
         userService.getByToken(user.getId(), id,request);
-
     }
 
 
