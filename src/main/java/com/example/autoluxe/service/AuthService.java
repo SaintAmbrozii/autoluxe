@@ -28,6 +28,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.math.BigDecimal;
 import java.net.URI;
 import java.time.Instant;
 import java.util.Date;
@@ -132,6 +133,7 @@ public class AuthService {
         user.setName(signUpRequest.getName());
 
         user.setRole(Role.ROLE_ADMIN);
+        user.setBalance(BigDecimal.valueOf(0.00));
 
         User userAfterSaving = userService.save(user);
 

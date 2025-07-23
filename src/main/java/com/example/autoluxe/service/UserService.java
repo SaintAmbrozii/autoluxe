@@ -406,6 +406,7 @@ public class UserService {
                 findById(id).orElseThrow(() -> new NotFoundException("User not found"));
         inDB.setEmail(user.getEmail());
         inDB.setName(user.getName());
+        userRepo.save(inDB);
         return UserDto.toDto(inDB);
     }
 

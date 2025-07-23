@@ -27,7 +27,7 @@ public class UserProfileDto {
         dto.setName(user.getName());
         dto.setPhone(user.getPhone());
         dto.setPassword(user.getPassword());
-        dto.balance = MoneyUtils.formatRU(user.getBalance().doubleValue());
+        dto.setBalance(MoneyUtils.formatRU(user.getBalance().doubleValue()));
         return dto;
     }
 }
