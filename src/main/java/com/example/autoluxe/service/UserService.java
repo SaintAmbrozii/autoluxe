@@ -15,6 +15,7 @@ import com.example.autoluxe.exception.NotFoundException;
 import com.example.autoluxe.payload.addbalance.AddBalance;
 import com.example.autoluxe.payload.addsubuser.AddSubUserRequest;
 import com.example.autoluxe.payload.addsubuser.AddSubUserResponse;
+import com.example.autoluxe.payload.auth.SignUpRequest;
 import com.example.autoluxe.payload.changelogin.ChangeUserLoginRequest;
 import com.example.autoluxe.payload.changelogin.UserLoginRequest;
 import com.example.autoluxe.payload.changename.ChangeUserNameRequest;
@@ -410,15 +411,16 @@ public class UserService {
         return UserDto.toDto(inDB);
     }
 
-    public UserProfileDto updateProfile (User user) {
+    @Transactional
+    public UserProfileDto updateProfile (User user, SignUpRequest request) {
         User inDB = userRepo.
                 findById(user.getId()).orElseThrow(() -> new NotFoundException("User not found"));
-        inDB.setEmail(user.getEmail());
-        inDB.setName(user.getName());
-        inDB.setPhone(user.getPhone());
-        inDB.setPassword(encoder.encode(user.getPassword()));
-        userRepo.save(inDB);
-        return UserProfileDto.toDto(inDB);
+        inDB.setEmail(request.getEmail());
+        inDB.setName(request.getName());
+        inDB.setPhone(request.getPhone());
+        inDB.setPassword(encoder.encode(request.getPassword()));
+        User newUser = userRepo.save(inDB);
+        return UserProfileDto.toDto(newUser);
     }
 
 

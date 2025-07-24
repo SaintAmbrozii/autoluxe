@@ -5,6 +5,7 @@ import com.example.autoluxe.domain.UserAccount;
 import com.example.autoluxe.dto.UserAccountDto;
 import com.example.autoluxe.dto.UserDto;
 import com.example.autoluxe.dto.UserProfileDto;
+import com.example.autoluxe.payload.auth.SignUpRequest;
 import com.example.autoluxe.payload.changelogin.UserLoginRequest;
 import com.example.autoluxe.payload.changename.UserNameRequest;
 import com.example.autoluxe.payload.changepass.ChangeUserPass;
@@ -40,8 +41,9 @@ public class ProfileController {
         return accountService.findAllByUserId(user.getId());
     }
     @PatchMapping
-    public UserProfileDto update (@AuthenticationPrincipal User user) {
-        return userService.updateProfile(user);
+    public UserProfileDto update (@AuthenticationPrincipal User user,
+                                  @RequestBody @Valid SignUpRequest request) {
+        return userService.updateProfile(user,request);
     }
 
     @PatchMapping("/accounts/hide/{id}")
