@@ -3,17 +3,26 @@ package com.example.autoluxe.dto;
 import com.example.autoluxe.utils.validator.ContactNumberConstraint;
 import com.example.autoluxe.utils.validator.NullOrNotBlank;
 import com.example.autoluxe.utils.validator.ValidEmail;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
+
+import java.util.Optional;
 
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UpdateProfileDto {
 
-    @ValidEmail
+
+    @JsonProperty("email")
     private String email;
-    @NullOrNotBlank(message = "Пароль не должно быть пустым.")
+
+    @JsonProperty("password")
     private String password;
-    @NullOrNotBlank(message = "Имя не должно быть пустым.")
+
+    @JsonProperty("name")
     private String name;
-    @ContactNumberConstraint
+
+    @JsonProperty("phone")
     private String phone;
 }

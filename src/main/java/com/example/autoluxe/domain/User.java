@@ -57,7 +57,7 @@ public class User implements UserDetails, Serializable {
     private BigDecimal balance;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "user",orphanRemoval = true)
+    @OneToMany(mappedBy = "user",orphanRemoval = true,cascade = CascadeType.ALL)
     private List<Token> tokenList;
 
     private Boolean active=false;

@@ -118,13 +118,12 @@ public class AuthService {
 
     public ResponseEntity<ApiResponse> registerUser(SignUpRequest signUpRequest,
                                                     HttpServletRequest request) {
-        Optional<User> userFromDB = userRepo.findUserByEmail(signUpRequest.getEmail());
 
         String appUrl = request.getContextPath();
 
-        if (userFromDB.isPresent()) {
-            throw new BadCredentialsException("Username is already exists");
-        }
+     //   if (userService.doesUsernameExists(signUpRequest.getName())) {
+    //        throw new BadCredentialsException("Username is already exists");
+    //    }
 
         User user = new User();
         user.setEmail(signUpRequest.getEmail());

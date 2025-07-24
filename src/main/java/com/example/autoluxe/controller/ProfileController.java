@@ -42,7 +42,7 @@ public class ProfileController {
     }
     @PatchMapping
     public UserProfileDto update (@AuthenticationPrincipal User user,
-                                  @RequestBody @Valid SignUpRequest request) {
+                                  @RequestBody UserProfileDto request) {
         return userService.updateProfile(user,request);
     }
 

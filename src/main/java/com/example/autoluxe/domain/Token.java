@@ -28,7 +28,7 @@ public class Token {
 
     private boolean revoked = false;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
     private User user;
 
     @Column(name = "duration")

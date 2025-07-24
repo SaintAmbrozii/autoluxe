@@ -15,7 +15,6 @@ import com.example.autoluxe.exception.NotFoundException;
 import com.example.autoluxe.payload.addbalance.AddBalance;
 import com.example.autoluxe.payload.addsubuser.AddSubUserRequest;
 import com.example.autoluxe.payload.addsubuser.AddSubUserResponse;
-import com.example.autoluxe.payload.auth.SignUpRequest;
 import com.example.autoluxe.payload.changelogin.ChangeUserLoginRequest;
 import com.example.autoluxe.payload.changelogin.UserLoginRequest;
 import com.example.autoluxe.payload.changename.ChangeUserNameRequest;
@@ -29,6 +28,8 @@ import com.example.autoluxe.payload.getusertoken.GetUserTokenResponse;
 import com.example.autoluxe.payload.hideuseracc.HideAccRequest;
 import com.example.autoluxe.repo.AccountRepo;
 import com.example.autoluxe.repo.UserRepo;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -59,12 +60,13 @@ public class UserService {
     private final BuyEpcTokenEventListener buyEpcTokenEventListener;
     private final AccountRepo accountRepo;
     private final CalculationService calculationService;
+    private final ObjectMapper objectMapper;
 
     public UserService(UserRepo userRepo, PasswordEncoder encoder,
                        AccountService accountService,
                        GetUserAccountsListener getUserAccountsListener,
                        PaymentService paymentService, BuyEpcTokenEventListener buyEpcTokenEventListener,
-                       AccountRepo accountRepo, CalculationService calculationService) {
+                       AccountRepo accountRepo, CalculationService calculationService, ObjectMapper objectMapper) {
         this.userRepo = userRepo;
         this.encoder = encoder;
         this.accountService = accountService;
@@ -73,6 +75,7 @@ public class UserService {
         this.buyEpcTokenEventListener = buyEpcTokenEventListener;
         this.accountRepo = accountRepo;
         this.calculationService = calculationService;
+        this.objectMapper = objectMapper;
     }
 
 
@@ -391,6 +394,7 @@ public class UserService {
     public UserDto addBalance(Long id, User user, AddBalance balance) {
         User inDB = userRepo.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
         inDB.setBalance(BigDecimal.valueOf(balance.getBalance()));
+        userRepo.save(inDB);
 
         Payments payments = new Payments();
         payments.setTimestamp(ZonedDateTime.now());
@@ -412,13 +416,21 @@ public class UserService {
     }
 
     @Transactional
-    public UserProfileDto updateProfile (User user, SignUpRequest request) {
+    public UserProfileDto updateProfile (User user, UserProfileDto request) {
         User inDB = userRepo.
                 findById(user.getId()).orElseThrow(() -> new NotFoundException("User not found"));
-        inDB.setEmail(request.getEmail());
-        inDB.setName(request.getName());
-        inDB.setPhone(request.getPhone());
-        inDB.setPassword(encoder.encode(request.getPassword()));
+       if (request.getName()!=null){
+           inDB.setName(request.getName());
+       }
+       if (request.getPhone()!=null) {
+           inDB.setPhone(request.getPhone());
+       }
+       if (request.getPassword()!=null){
+           inDB.setPassword(encoder.encode(request.getPassword()));
+       }
+       if (request.getEmail()!=null) {
+           inDB.setEmail(request.getEmail());
+       }
         User newUser = userRepo.save(inDB);
         return UserProfileDto.toDto(newUser);
     }

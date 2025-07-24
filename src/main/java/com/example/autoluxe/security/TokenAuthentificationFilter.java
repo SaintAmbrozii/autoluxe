@@ -53,7 +53,7 @@ public class TokenAuthentificationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         String token = getJwtToken(request,true);
-                //    resolveToken(request);
+                  //  resolveToken(request);
         if (StringUtils.hasText(token) && this.tokenProvider.validateToken(token)) {
 
             UsernamePasswordAuthenticationToken authentication = tokenProvider.getAuthenticationByUserFromDbWithEmail(token);
