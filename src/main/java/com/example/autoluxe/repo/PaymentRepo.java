@@ -16,6 +16,8 @@ public interface PaymentRepo extends JpaRepository<Payments,Long>, JpaSpecificat
 
     Long countAllByManagerId(Long id);
 
+    List<Payments> findAllByUserId(Long id);
+
 
 
 

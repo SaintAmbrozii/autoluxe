@@ -43,10 +43,10 @@ public class UserController {
         return userRepo.findAll(pageable).map(UserDto::toDto);
     }
 
- //   @GetMapping
-  //  public List<UserDto> findAll() {
- //       return userService.getAllUsers();
-  //  }
+    @GetMapping("/list")
+    public List<UserDto> findAll() {
+        return userService.getAllUsers();
+    }
 
     @PatchMapping("/addbalance/{id}")
     public UserDto addBalance(@PathVariable(name = "id")Long id, @AuthenticationPrincipal User user, @RequestBody @Valid AddBalance balance) {

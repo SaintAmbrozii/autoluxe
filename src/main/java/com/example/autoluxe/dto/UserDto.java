@@ -32,7 +32,7 @@ public class UserDto {
         dto.setEmail(user.getEmail());
         dto.setName(user.getName());
         dto.setPhone(user.getPhone());
-        dto.balance = MoneyUtils.formatRU(user.getBalance().doubleValue());
+        dto.setBalance(MoneyUtils.formatRU(user.getBalance().doubleValue()));
         return dto;
     }
 }

@@ -13,10 +13,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.method.P;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/payments")
@@ -31,9 +33,22 @@ public class PaymentController {
         this.paymentRepo = paymentRepo;
     }
 
+    @GetMapping("/all") // список платежей всех юзеров
+    public List<PaymentDto> getAllUsers(){
+
+        return paymentRepo.findAll().stream()
+                .map(PaymentDto::toDto).collect(Collectors.toList());
+    }
+
+    @GetMapping("/admin") // список оплат админа
+    public List<PaymentDto> getAllAdmin(@AuthenticationPrincipal User user) {
+        return paymentRepo.findAllByUserId(user.getId())
+                .stream().map(PaymentDto::toDto).collect(Collectors.toList());
+    }
+
     @GetMapping() //станица платежей всех юзеров
     public PaymentPage list(@RequestParam(value = "page", defaultValue = "0", required = false) int page,
-                                 @RequestParam(value = "count", defaultValue = "100", required = false) int size,
+                                 @RequestParam(value = "count", defaultValue = "50", required = false) int size,
                                  @RequestParam(value = "order", defaultValue = "DESC", required = false) Sort.Direction direction,
                                  @RequestParam(value = "sort", defaultValue = "id", required = false) String sortProperty) {
         Sort sort = Sort.by(new Sort.Order(direction, sortProperty));
@@ -81,7 +96,7 @@ public class PaymentController {
     @GetMapping("list") //страница платежей админа
     public PaymentPage payments(@AuthenticationPrincipal User user,
                                 @RequestParam(value = "page", defaultValue = "0", required = false) int page,
-                                @RequestParam(value = "count", defaultValue = "100", required = false) int size,
+                                @RequestParam(value = "count", defaultValue = "50", required = false) int size,
                                 @RequestParam(value = "order", defaultValue = "DESC", required = false) Sort.Direction direction,
                                 @RequestParam(value = "sort", defaultValue = "id", required = false) String sortProperty) {
         Sort sort = Sort.by(new Sort.Order(direction, sortProperty));

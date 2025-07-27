@@ -25,17 +25,17 @@ public class PaymentDto {
 
     private String timestamp;
 
-    private BigDecimal summa;
+    private Double summa;
 
     private String payment;
 
     public static PaymentDto toDto(Payments payments) {
         PaymentDto paymentDto = new PaymentDto();
-        paymentDto.timestamp = DateUtils.ddmmyyyy_hhmmssZ(payments.getTimestamp());
-        paymentDto.setSumma(payments.getSumma());
+        paymentDto.setTimestamp(DateUtils.ddmmyyyy_hhmmssZ(payments.getTimestamp()));
+        paymentDto.setSumma(payments.getSumma().doubleValue());
         paymentDto.setUserId(paymentDto.getUserId());
         paymentDto.setUserEmail(paymentDto.getUserEmail());
-        paymentDto.payment = MoneyUtils.formatRU(payments.getSumma().doubleValue());
+        paymentDto.setPayment(MoneyUtils.formatRU(payments.getSumma().doubleValue()));
         return paymentDto;
     }
 }
