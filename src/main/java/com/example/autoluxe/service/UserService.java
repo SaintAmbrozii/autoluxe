@@ -60,13 +60,13 @@ public class UserService {
     private final BuyEpcTokenEventListener buyEpcTokenEventListener;
     private final AccountRepo accountRepo;
     private final CalculationService calculationService;
-    private final ObjectMapper objectMapper;
+
 
     public UserService(UserRepo userRepo, PasswordEncoder encoder,
                        AccountService accountService,
                        GetUserAccountsListener getUserAccountsListener,
                        PaymentService paymentService, BuyEpcTokenEventListener buyEpcTokenEventListener,
-                       AccountRepo accountRepo, CalculationService calculationService, ObjectMapper objectMapper) {
+                       AccountRepo accountRepo, CalculationService calculationService) {
         this.userRepo = userRepo;
         this.encoder = encoder;
         this.accountService = accountService;
@@ -75,7 +75,6 @@ public class UserService {
         this.buyEpcTokenEventListener = buyEpcTokenEventListener;
         this.accountRepo = accountRepo;
         this.calculationService = calculationService;
-        this.objectMapper = objectMapper;
     }
 
 
