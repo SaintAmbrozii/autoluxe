@@ -21,7 +21,7 @@ public class UserAccountDto {
     public static UserAccountDto toDto (UserAccount userAccount) {
         UserAccountDto accountDto = new UserAccountDto();
         accountDto.setId(userAccount.getId());
-        accountDto.setExpires(userAccount.getRFCExpires());
+        accountDto.setExpires(userAccount.getRFCExpires().toString());
         accountDto.setName(userAccount.getName());
         accountDto.setPass(userAccount.getPass());
         accountDto.setLogin(userAccount.getLogin());

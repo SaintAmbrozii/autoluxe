@@ -12,11 +12,15 @@ import com.example.autoluxe.payload.getusertoken.GetUserTokenRequest;
 import com.example.autoluxe.payload.getusertoken.GetUserTokenResponse;
 import com.example.autoluxe.repo.AccountRepo;
 import com.example.autoluxe.repo.UserRepo;
+import com.example.autoluxe.utils.DateUtils;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Service
@@ -149,12 +153,15 @@ public class ApiService {
                 )
                 .body(ConfirmByResponse.class);
 
+        String pattern = "EEE, dd MMM yyyy HH:mm:ss Z";
+        SimpleDateFormat format = new SimpleDateFormat(pattern, Locale.ENGLISH);
+
         List<UserAccount> toEntity = response.getAccounts().stream().map(a-> {
             UserAccount account = accountRepo.
                     findUserAccountByEpcId(a.getEpc_id()).orElseThrow();
             account.setLogin(a.getLogin());
             account.setPass(a.getPass());
-            account.setRFCExpires(a.getExpires());
+            account.setRFCExpires(DateUtils.parseDate(a.getExpires()));
            return account;
         }).collect(Collectors.toList());
 

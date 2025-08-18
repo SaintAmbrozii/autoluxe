@@ -7,6 +7,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+import java.util.Date;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -43,8 +46,9 @@ public class UserAccount {
     @Column(name = "status")
     private Integer status;
 
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "RFSExpires")
-    private String RFCExpires;
+    private LocalDateTime RFCExpires;
 
 
 

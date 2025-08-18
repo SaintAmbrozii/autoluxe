@@ -3,17 +3,20 @@ package com.example.autoluxe.utils;
 import com.example.autoluxe.dto.DateRange;
 import lombok.extern.slf4j.Slf4j;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.text.SimpleDateFormat;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.Locale;
 
 @Slf4j
 public class DateUtils {
 
     public static final ZoneId DEFAULT_ZONE = ZoneId.of("Asia/Novosibirsk"); // Moscow Time
     public static final String RANGE_DATE_FORMAT = "dd/MM/yyyy";
+    public static final String pattern_RFC_2822 = "EEE, dd MMM yyyy HH:mm:ss Z";
+
 
     public static String ddmmyyyy_hhmmssZ(ZonedDateTime dt) {
         if (dt == null)
@@ -64,6 +67,21 @@ public class DateUtils {
         }
     }
 
+    public static LocalDateTime parseDate(String date) {
+
+        try {
+            SimpleDateFormat format = new SimpleDateFormat(pattern_RFC_2822,Locale.ENGLISH);
+            Date javaDate = format.parse(date);
+            LocalDateTime localDateTime = LocalDateTime.ofInstant(javaDate.toInstant(), ZoneId.systemDefault());
+            return localDateTime;
+
+        } catch (Throwable any) {
+            any.printStackTrace();
+            log.error("Cannot parse date {}", date);
+            return null;
+        }
+    }
+
     public static DateRange parseRange(String[] range) {
         if (range == null || range.length == 0)
             return null;
@@ -78,4 +96,8 @@ public class DateUtils {
 
         return dateRange;
     }
+
+
+
+
 }
