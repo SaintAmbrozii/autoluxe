@@ -2,6 +2,7 @@ package com.example.autoluxe.controller;
 
 import com.example.autoluxe.domain.ContactForm;
 import com.example.autoluxe.service.ContactFormService;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,6 +19,7 @@ public class ContactFormController {
         this.contactFormService = contactFormService;
     }
 
+    @GetMapping
     public List<ContactForm> findAll() {
         return contactFormService.findAll();
     }
