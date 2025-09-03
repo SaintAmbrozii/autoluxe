@@ -123,7 +123,7 @@ public class SecurityConfig {
                                 .requestMatchers("/api/accounts/**")
                                 .hasAuthority("ROLE_ADMIN")
                                 .requestMatchers("/api/payments/**")
-                                .hasAuthority("ROLE_ADMIN")
+                                .hasAnyAuthority("ROLE_ADMIN","ROLE_USER")
                                 .requestMatchers("/api/calculation/**")
                                 .hasAuthority("ROLE_ADMIN")
                                 .requestMatchers("/api/contact/**")

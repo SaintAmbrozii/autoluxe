@@ -131,7 +131,7 @@ public class AuthService {
         user.setPassword(encoder.encode(signUpRequest.getPassword()));
         user.setName(signUpRequest.getName());
 
-        user.setRole(Role.ROLE_ADMIN);
+        user.setRole(Role.ROLE_USER);
         user.setBalance(BigDecimal.valueOf(0.00));
 
         User userAfterSaving = userService.save(user);
