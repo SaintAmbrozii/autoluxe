@@ -1,9 +1,13 @@
 package com.example.autoluxe.payload.confirmbuy;
 
+import com.example.autoluxe.utils.DateTimeDeserializer;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -17,5 +21,7 @@ public class ConfirmByAccountDto {
 
     private String pass;
 
-    private String expires;
+    @JsonProperty
+    @JsonDeserialize(using = DateTimeDeserializer.class)
+    private LocalDateTime expires;
 }

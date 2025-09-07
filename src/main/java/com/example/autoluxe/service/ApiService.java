@@ -153,15 +153,12 @@ public class ApiService {
                 )
                 .body(ConfirmByResponse.class);
 
-        String pattern = "EEE, dd MMM yyyy HH:mm:ss Z";
-        SimpleDateFormat format = new SimpleDateFormat(pattern, Locale.ENGLISH);
-
         List<UserAccount> toEntity = response.getAccounts().stream().map(a-> {
             UserAccount account = accountRepo.
                     findUserAccountByEpcId(a.getEpc_id()).orElseThrow();
             account.setLogin(a.getLogin());
             account.setPass(a.getPass());
-            account.setRFCExpires(DateUtils.parseDate(a.getExpires()));
+            account.setRFCExpires(a.getExpires());
            return account;
         }).collect(Collectors.toList());
 

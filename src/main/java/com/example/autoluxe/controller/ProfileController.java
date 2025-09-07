@@ -81,7 +81,7 @@ public class ProfileController {
     consumes = MediaType.APPLICATION_JSON_VALUE)
     public void buyAccount(@PathVariable(name = "id") Long id,
                            @AuthenticationPrincipal User user,
-                           @RequestBody @Valid BuyTokenRequest request) {
+                           @RequestBody BuyTokenRequest request) {
         userService.getByToken(user.getId(), id,request);
     }
 
