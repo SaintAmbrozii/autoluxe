@@ -39,8 +39,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -154,10 +157,13 @@ public class UserService {
                 )
                 .body(AddSubUserResponse.class);
 
+        String dateTime = "2026-01-01 07:00:00";
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
 
         UserAccount account = new UserAccount();
         account.setEpcId(response.getEpc_id());
-        account.setRFCExpires(LocalDateTime.parse("1970-01-01 07:00:00"));
+        account.setRFCExpires(LocalDateTime.parse(dateTime,format));
         account.setHide(false);
         UserAccount newAccount =  accountRepo.save(account);
         return UserAccountDto.toDto(newAccount);
