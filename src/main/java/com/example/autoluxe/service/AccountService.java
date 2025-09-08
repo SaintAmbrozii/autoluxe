@@ -33,7 +33,7 @@ public class AccountService {
     }
 
     public List<UserAccountDto> findAllByUserId(Long id) {
-        return accountRepo.findAllByUserId(id)
+        return accountRepo.findUserAccountsByUserIdAndHideIsFalse(id)
                 .stream().map(UserAccountDto::toDto).collect(Collectors.toList());
     }
 

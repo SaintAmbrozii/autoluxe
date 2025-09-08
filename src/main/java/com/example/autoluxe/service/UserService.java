@@ -39,6 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -156,6 +157,8 @@ public class UserService {
 
         UserAccount account = new UserAccount();
         account.setEpcId(response.getEpc_id());
+        account.setRFCExpires(LocalDateTime.parse("1970-01-01 07:00:00"));
+        account.setHide(false);
         UserAccount newAccount =  accountRepo.save(account);
         return UserAccountDto.toDto(newAccount);
 
@@ -163,6 +166,7 @@ public class UserService {
 
     }
 
+    @Transactional
     public void hideAccount(Long userId, Long accountId) {
         User inDB = userRepo.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
@@ -366,6 +370,7 @@ public class UserService {
 
             Payments payments = new Payments();
             payments.setUserId(inDB.getId());
+            payments.setManagerId(inDB.getId());
             payments.setSumma(BigDecimal.valueOf(price));
             payments.setUserEmail(inDB.getEmail());
             payments.setTimestamp(ZonedDateTime.now());
@@ -451,6 +456,13 @@ public class UserService {
         return userRepo.findUserByEmail(username).isPresent();
     }
 
+    //4 - AutoData
+    //72 - TechDoc
+    //84 - Полный
+    // 129 TIS
+    //132 - легковой
+    //133 - грузовой
+    //134 - TechData
 
     private Double caclucate (List<Integer> params,Integer days) {
         if (params.contains(84) && days == 30) {
