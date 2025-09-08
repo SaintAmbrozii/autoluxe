@@ -162,6 +162,7 @@ public class UserService {
 
 
         UserAccount account = new UserAccount();
+        account.setUserId(inDB.getId());
         account.setEpcId(response.getEpc_id());
         account.setRFCExpires(LocalDateTime.parse(dateTime,format));
         account.setHide(false);
