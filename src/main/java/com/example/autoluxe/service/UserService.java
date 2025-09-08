@@ -157,7 +157,7 @@ public class UserService {
                 )
                 .body(AddSubUserResponse.class);
 
-        String dateTime = "2026-01-01 07:00:00";
+        String dateTime = "1970-01-01 07:00:00";
         DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 
