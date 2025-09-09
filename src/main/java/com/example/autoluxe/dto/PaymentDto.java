@@ -31,6 +31,7 @@ public class PaymentDto {
 
     public static PaymentDto toDto(Payments payments) {
         PaymentDto paymentDto = new PaymentDto();
+        paymentDto.setId(payments.getId());
         paymentDto.setManagerId(payments.getManagerId());
         paymentDto.setTimestamp(DateUtils.ddmmyyyy_hhmmssZ(payments.getTimestamp()));
         paymentDto.setSumma(payments.getSumma().doubleValue());

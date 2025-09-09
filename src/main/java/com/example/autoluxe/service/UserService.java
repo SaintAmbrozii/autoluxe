@@ -173,7 +173,7 @@ public class UserService {
 
     }
 
-    @Transactional
+
     public void hideAccount(Long userId, Long accountId) {
         User inDB = userRepo.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
@@ -205,7 +205,8 @@ public class UserService {
 
 
 
-        accountRepo.delete(account);
+        account.setHide(true);
+        accountRepo.save(account);
 
     //    getUserAccountsListener.onApplicationEvent(new GetUserAccountsEvent(inDB.getId()));
     }
