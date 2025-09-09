@@ -204,8 +204,8 @@ public class UserService {
                 .toBodilessEntity();
 
 
-        account.setHide(true);
-        accountRepo.save(account);
+
+        accountRepo.delete(account);
 
     //    getUserAccountsListener.onApplicationEvent(new GetUserAccountsEvent(inDB.getId()));
     }
