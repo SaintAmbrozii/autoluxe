@@ -31,10 +31,11 @@ public class PaymentDto {
 
     public static PaymentDto toDto(Payments payments) {
         PaymentDto paymentDto = new PaymentDto();
+        paymentDto.setManagerId(payments.getManagerId());
         paymentDto.setTimestamp(DateUtils.ddmmyyyy_hhmmssZ(payments.getTimestamp()));
         paymentDto.setSumma(payments.getSumma().doubleValue());
-        paymentDto.setUserId(paymentDto.getUserId());
-        paymentDto.setUserEmail(paymentDto.getUserEmail());
+        paymentDto.setUserId(payments.getUserId());
+        paymentDto.setUserEmail(payments.getUserEmail());
         paymentDto.setPayment(MoneyUtils.formatRU(payments.getSumma().doubleValue()));
         return paymentDto;
     }

@@ -203,6 +203,7 @@ public class UserService {
                 )
                 .toBodilessEntity();
 
+
         account.setHide(true);
         accountRepo.save(account);
 
@@ -381,6 +382,7 @@ public class UserService {
             payments.setSumma(BigDecimal.valueOf(price));
             payments.setUserEmail(inDB.getEmail());
             payments.setTimestamp(ZonedDateTime.now());
+
             paymentService.save(payments);
 
         }
