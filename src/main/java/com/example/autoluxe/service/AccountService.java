@@ -33,8 +33,8 @@ public class AccountService {
     }
 
     public List<UserAccountDto> findAllByUserId(Long id) {
-        return accountRepo.findUserAccountsByUserIdAndHideIsFalse(id)
-                .stream().map(UserAccountDto::toDto).collect(Collectors.toList());
+        return accountRepo.findAllByUserId(id)
+                .stream().filter(f->!f.isHide()).map(UserAccountDto::toDto).collect(Collectors.toList());
     }
 
     public Optional<UserAccount> findByEpcId(Integer id){

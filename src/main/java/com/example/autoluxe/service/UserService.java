@@ -407,7 +407,16 @@ public class UserService {
     @Transactional
     public UserDto addBalance(Long id, User user, AddBalance balance) {
         User inDB = userRepo.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
-        inDB.setBalance(BigDecimal.valueOf(balance.getBalance()));
+
+        if (Objects.equals(inDB.getBalance(), BigDecimal.ZERO)) {
+            inDB.setBalance(BigDecimal.valueOf(balance.getBalance()));
+            userRepo.save(inDB);
+        }
+        BigDecimal addBalance = BigDecimal.valueOf(balance.getBalance());
+        BigDecimal userBalance = inDB.getBalance();
+
+        BigDecimal sum = BigDecimal.valueOf(userBalance.doubleValue()).add(addBalance);
+        inDB.setBalance(sum);
         userRepo.save(inDB);
 
         Payments payments = new Payments();

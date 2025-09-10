@@ -12,7 +12,7 @@ public interface AccountRepo extends JpaRepository<UserAccount,Long> {
 
    Optional<UserAccount> findUserAccountByEpcId(Integer id);
 
-   List<UserAccount> findUserAccountsByUserIdAndHideIsFalse(Long id);
+   List<UserAccount> findAllByHideIsFalseAndUserId(Long id);
 
    List<UserAccount> findAllByUserId (Long id);
 
