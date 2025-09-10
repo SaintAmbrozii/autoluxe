@@ -408,10 +408,10 @@ public class UserService {
     public UserDto addBalance(Long id, User user, AddBalance balance) {
         User inDB = userRepo.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
 
-        if (Objects.equals(inDB.getBalance(), BigDecimal.ZERO)) {
-            inDB.setBalance(BigDecimal.valueOf(balance.getBalance()));
-            userRepo.save(inDB);
-        }
+       // if (Objects.equals(inDB.getBalance(), BigDecimal.ZERO)) {
+      ///      inDB.setBalance(BigDecimal.valueOf(balance.getBalance()));
+      //      userRepo.save(inDB);
+     //   }
         BigDecimal addBalance = BigDecimal.valueOf(balance.getBalance());
         BigDecimal userBalance = inDB.getBalance();
 
