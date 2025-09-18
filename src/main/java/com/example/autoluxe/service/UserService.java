@@ -377,12 +377,15 @@ public class UserService {
             inDB.setBalance(buyAccountPrice);
             userRepo.save(inDB);
 
+            String paymentType = getPaymentType(buyTokenRequest.getParam());
+
             Payments payments = new Payments();
             payments.setUserId(inDB.getId());
             payments.setManagerId(inDB.getId());
             payments.setSumma(BigDecimal.valueOf(price));
             payments.setUserEmail(inDB.getEmail());
             payments.setTimestamp(ZonedDateTime.now());
+            payments.setType(paymentType);
 
             paymentService.save(payments);
 
@@ -408,10 +411,6 @@ public class UserService {
     public UserDto addBalance(Long id, User user, AddBalance balance) {
         User inDB = userRepo.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
 
-       // if (Objects.equals(inDB.getBalance(), BigDecimal.ZERO)) {
-      ///      inDB.setBalance(BigDecimal.valueOf(balance.getBalance()));
-      //      userRepo.save(inDB);
-     //   }
         BigDecimal addBalance = BigDecimal.valueOf(balance.getBalance());
         BigDecimal userBalance = inDB.getBalance();
 
@@ -421,10 +420,13 @@ public class UserService {
 
         Payments payments = new Payments();
         payments.setTimestamp(ZonedDateTime.now());
+        payments.setUserEmail(inDB.getEmail());
         payments.setManagerId(user.getId());
         payments.setUserId(inDB.getId());
         payments.setSumma(BigDecimal.valueOf(balance.getBalance()));
+        payments.setType("Пополнение баланса пользователя");
         paymentService.save(payments);
+
         return UserDto.toDto(inDB);
     }
 
@@ -473,6 +475,64 @@ public class UserService {
 
     public boolean doesUsernameExists(String username){
         return userRepo.findUserByEmail(username).isPresent();
+    }
+
+    private String getPaymentType(List<Integer> params) {
+        if (params.contains(84)) {
+            return "Полный";
+        }
+        if (params.contains(132)) {
+            return "Легковой";
+        }
+        if (params.contains(133)) {
+            return "Грузовой";
+        }
+        if (params.contains(129)) {
+            return "TIS";
+        }
+        if (params.contains(4)) {
+            return "AutoData";
+        }
+        if (params.contains(72)) {
+            return "TechDoc";
+        }
+        if (params.contains(134)) {
+            return "TechData";
+        }
+        if (params.contains(84) && params.contains(4)) {
+            return "Полный + AutoData";
+        }
+        if (params.contains(84) && params.contains(72)) {
+            return "Полный + TechDoc";
+        }
+        if (params.contains(84) && params.contains(134)) {
+            return "Полный + TechData";
+        }
+        if (params.contains(84) && params.contains(4) && params.contains(72)) {
+            return "Полный + AutoData + TechDoc";
+        }
+        if (params.contains(84) && params.contains(72) && params.contains(134)) {
+            return "Полный + TechDoc + TechData";
+        }
+        if (params.contains(84) && params.contains(4) && params.contains(134)) {
+            return "Полный + AutoData + TechData";
+        }
+        if (params.contains(84) && params.contains(4) && params.contains(72) && params.contains(134)) {
+            return "Полный + AutoData + TechData + TechDoc";
+        }
+        if (params.contains(4) && params.contains(72)) {
+            return "AutoData + TechDoc";
+        }
+        if (params.contains(4) && params.contains(134)) {
+            return "AutoData + TechData";
+        }
+        if (params.contains(72) && params.contains(134)) {
+            return "TechDoc + TechData";
+        }
+        if (params.contains(4) && params.contains(72) && params.contains(134)) {
+            return "AutoData + TechDoc + TechData";
+        }
+        return null;
     }
 
     //4 - AutoData

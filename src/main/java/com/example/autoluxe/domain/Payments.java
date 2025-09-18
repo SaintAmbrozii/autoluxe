@@ -28,5 +28,7 @@ public class Payments {
     private ZonedDateTime timestamp;
     @Column(name = "summa",columnDefinition = "NUMERIC(10,2)")
     private BigDecimal summa;
+    @Column(name = "type")
+    private String type;
 
 }

@@ -29,6 +29,8 @@ public class PaymentDto {
 
     private String payment;
 
+    private String type;
+
     public static PaymentDto toDto(Payments payments) {
         PaymentDto paymentDto = new PaymentDto();
         paymentDto.setId(payments.getId());
@@ -38,6 +40,7 @@ public class PaymentDto {
         paymentDto.setUserId(payments.getUserId());
         paymentDto.setUserEmail(payments.getUserEmail());
         paymentDto.setPayment(MoneyUtils.formatRU(payments.getSumma().doubleValue()));
+        paymentDto.setType(payments.getType());
         return paymentDto;
     }
 }
