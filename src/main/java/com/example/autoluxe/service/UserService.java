@@ -592,41 +592,17 @@ public class UserService {
         if (params.contains(129) && days == 365) {
             return 36000.00;
         }
-        if (params.contains(72) && days == 30) {
-            return 1000.00;
-        }
-        if (params.contains(72) && days == 90) {
+        if (params.contains(4) && params.contains(72) && params.contains(134) && days == 30) {
             return 3000.00;
         }
-        if (params.contains(72) && days == 180) {
-            return 6000.00;
+        if (params.contains(4) && params.contains(72) && params.contains(134) && days == 90) {
+            return 9000.00;
         }
-        if (params.contains(72) && days == 365) {
-            return 12000.00;
+        if (params.contains(4) && params.contains(72) && params.contains(134) && days == 180) {
+            return 18000.00;
         }
-        if (params.contains(134) && days == 30) {
-            return 1000.00;
-        }
-        if (params.contains(134) && days == 90) {
-            return 3000.00;
-        }
-        if (params.contains(134) && days == 180) {
-            return 6000.00;
-        }
-        if (params.contains(134) && days == 365) {
-            return 12000.00;
-        }
-        if (params.contains(4) && days == 30) {
-            return 1000.00;
-        }
-        if (params.contains(4) && days == 90) {
-            return 3000.00;
-        }
-        if (params.contains(4) && days == 180) {
-            return 6000.00;
-        }
-        if (params.contains(4) && days == 365) {
-            return 12000.00;
+        if (params.contains(4) && params.contains(72) && params.contains(134) && days == 365) {
+            return 36000.00;
         }
         if (params.contains(72) && params.contains(134) && days == 30) {
             return 2000.00;
@@ -652,29 +628,17 @@ public class UserService {
         if (params.contains(72) && params.contains(4) && days == 365) {
             return 24000.00;
         }
-        if (params.contains(4) && params.contains(134) && days == 30) {
+        if (params.contains(134) && params.contains(4) && days == 30) {
             return 2000.00;
         }
-        if (params.contains(4) && params.contains(134) && days == 90) {
+        if (params.contains(134) && params.contains(4) && days == 90) {
             return 6000.00;
         }
-        if (params.contains(4) && params.contains(134) && days == 180) {
+        if (params.contains(134) && params.contains(4) && days == 180) {
             return 12000.00;
         }
-        if (params.contains(4) && params.contains(134) && days == 365) {
+        if (params.contains(134) && params.contains(4) && days == 365) {
             return 24000.00;
-        }
-        if (params.contains(72) && params.contains(4) && params.contains(134) && days == 30) {
-            return 3000.00;
-        }
-        if (params.contains(72) && params.contains(4) && params.contains(134) && days == 90) {
-            return 9000.00;
-        }
-        if (params.contains(72) && params.contains(4) && params.contains(134) && days == 180) {
-            return 18000.00;
-        }
-        if (params.contains(72) && params.contains(4) && params.contains(134) && days == 365) {
-            return 36000.00;
         }
         if (params.contains(84) & params.contains(72) && days == 30) {
             return 6500.00;
@@ -759,6 +723,42 @@ public class UserService {
         }
         if (params.contains(84) & params.contains(72) && params.contains(4) && params.contains(134) && days == 365) {
             return 90000.00;
+        }
+        if (params.contains(72) && days == 30) {
+            return 1000.00;
+        }
+        if (params.contains(72) && days == 90) {
+            return 3000.00;
+        }
+        if (params.contains(72) && days == 180) {
+            return 6000.00;
+        }
+        if (params.contains(72) && days == 365) {
+            return 12000.00;
+        }
+        if (params.contains(134) && days == 30) {
+            return 1000.00;
+        }
+        if (params.contains(134) && days == 90) {
+            return 3000.00;
+        }
+        if (params.contains(134) && days == 180) {
+            return 6000.00;
+        }
+        if (params.contains(134) && days == 365) {
+            return 12000.00;
+        }
+        if (params.contains(4) && days == 30) {
+            return 1000.00;
+        }
+        if (params.contains(4) && days == 90) {
+            return 3000.00;
+        }
+        if (params.contains(4) && days == 180) {
+            return 6000.00;
+        }
+        if (params.contains(4) && days == 365) {
+            return 12000.00;
         }
         return null;
     }
