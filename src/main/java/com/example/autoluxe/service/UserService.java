@@ -478,6 +478,39 @@ public class UserService {
     }
 
     private String getPaymentType(List<Integer> params) {
+        if (params.contains(84) && params.contains(4) && params.contains(72) && params.contains(134)) {
+            return "Полный + AutoData + TechData + TechDoc";
+        }
+        if (params.contains(84) && params.contains(4) && params.contains(72)) {
+            return "Полный + AutoData + TechDoc";
+        }
+        if (params.contains(84) && params.contains(72) && params.contains(134)) {
+            return "Полный + TechDoc + TechData";
+        }
+        if (params.contains(84) && params.contains(4) && params.contains(134)) {
+            return "Полный + AutoData + TechData";
+        }
+        if (params.contains(4) && params.contains(72) && params.contains(134)) {
+            return "AutoData + TechDoc + TechData";
+        }
+        if (params.contains(84) && params.contains(4)) {
+            return "Полный + AutoData";
+        }
+        if (params.contains(84) && params.contains(72)) {
+            return "Полный + TechDoc";
+        }
+        if (params.contains(84) && params.contains(134)) {
+            return "Полный + TechData";
+        }
+        if (params.contains(4) && params.contains(72)) {
+            return "AutoData + TechDoc";
+        }
+        if (params.contains(4) && params.contains(134)) {
+            return "AutoData + TechData";
+        }
+        if (params.contains(72) && params.contains(134)) {
+            return "TechDoc + TechData";
+        }
         if (params.contains(84)) {
             return "Полный";
         }
@@ -498,39 +531,6 @@ public class UserService {
         }
         if (params.contains(134)) {
             return "TechData";
-        }
-        if (params.contains(84) && params.contains(4)) {
-            return "Полный + AutoData";
-        }
-        if (params.contains(84) && params.contains(72)) {
-            return "Полный + TechDoc";
-        }
-        if (params.contains(84) && params.contains(134)) {
-            return "Полный + TechData";
-        }
-        if (params.contains(84) && params.contains(4) && params.contains(72)) {
-            return "Полный + AutoData + TechDoc";
-        }
-        if (params.contains(84) && params.contains(72) && params.contains(134)) {
-            return "Полный + TechDoc + TechData";
-        }
-        if (params.contains(84) && params.contains(4) && params.contains(134)) {
-            return "Полный + AutoData + TechData";
-        }
-        if (params.contains(84) && params.contains(4) && params.contains(72) && params.contains(134)) {
-            return "Полный + AutoData + TechData + TechDoc";
-        }
-        if (params.contains(4) && params.contains(72)) {
-            return "AutoData + TechDoc";
-        }
-        if (params.contains(4) && params.contains(134)) {
-            return "AutoData + TechData";
-        }
-        if (params.contains(72) && params.contains(134)) {
-            return "TechDoc + TechData";
-        }
-        if (params.contains(4) && params.contains(72) && params.contains(134)) {
-            return "AutoData + TechDoc + TechData";
         }
         return null;
     }

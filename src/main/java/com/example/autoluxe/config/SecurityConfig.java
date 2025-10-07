@@ -102,7 +102,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(configurer ->
                         configurer.requestMatchers("/api/auth/**")
                                 .permitAll()
-                                .requestMatchers("/","/contact","/registrationSuccess",
+                                .requestMatchers("/","/api/contact/add","/registrationSuccess",
                                         "/favicon.ico",
                                         "/css/**",
                                         "/public/**",
