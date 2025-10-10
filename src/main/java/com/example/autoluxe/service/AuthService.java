@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.math.BigDecimal;
@@ -243,7 +244,7 @@ public class AuthService {
 
     @Transactional
     public ResponseEntity<String> handlePasswordReset(@ModelAttribute("passwordResetForm")
-                                                          @Valid PasswordResetDto resetDto) {
+                                                           @Valid PasswordResetDto resetDto) {
 
         PasswordResetToken passwordResetToken = passwordResetTokenService.findByToken(resetDto.getToken());
 

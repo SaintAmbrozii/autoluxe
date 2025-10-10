@@ -3,6 +3,7 @@ package com.example.autoluxe.service;
 import com.example.autoluxe.domain.ContactForm;
 import com.example.autoluxe.payload.contactform.ContactDto;
 import com.example.autoluxe.repo.ContactFormRepo;
+import com.example.autoluxe.utils.DateUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class ContactFormService {
         ContactForm form = new ContactForm();
         form.setName(dto.getName());
         form.setPhone(dto.getPhone());
+        form.setDateTime(DateUtils.now());
        return contactFormRepo.save(form);
     }
 }

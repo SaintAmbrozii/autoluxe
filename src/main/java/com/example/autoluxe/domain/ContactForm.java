@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.ZonedDateTime;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -21,4 +23,6 @@ public class ContactForm {
     private String name;
     @Column(name = "phone")
     private String phone;
+    @Column(name = "dateTime")
+    private ZonedDateTime dateTime;
 }
