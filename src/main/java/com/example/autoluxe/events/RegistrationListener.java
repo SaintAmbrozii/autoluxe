@@ -5,6 +5,7 @@ import com.example.autoluxe.domain.User;
 import com.example.autoluxe.service.AccountService;
 import com.example.autoluxe.service.MailService;
 import jakarta.mail.MessagingException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.MessageSource;
 import org.springframework.mail.SimpleMailMessage;
@@ -22,6 +23,9 @@ public class RegistrationListener implements ApplicationListener<RegistrationCom
     private final MessageSource messageSource;
     private final MailService mailService;
     private final JavaMailSender mailSender;
+
+    @Value("${BASIC_URL}")
+    private String siteUrl;
 
     private static final String basicUrl = "http://194.87.248.209/api/auth";
 
@@ -51,7 +55,7 @@ public class RegistrationListener implements ApplicationListener<RegistrationCom
         accountService.createVerificationToken(user, token);
 
         String confirmationUrl
-                = basicUrl + "/registrationConfirm?token=" + token;
+                = siteUrl + "/api/auth/registrationConfirm?token=" + token;
 
         try {
             mailService.sendTemplateEmail(MailType.REGISTRATION,user,confirmationUrl);
