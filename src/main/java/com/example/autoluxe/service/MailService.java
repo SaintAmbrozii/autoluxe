@@ -30,7 +30,7 @@ public class MailService {
     private static final String PNG_MIME = "image/png";
     private static final String MAIL_SUBJECT = "Registration Confirmation";
     private static final String MAIL_CONTACT_FORM = "User get contact";
-    private static final String MAIL_FROM = "autoluxe@mail.ru";
+    private static final String MAIL_FROM = "openvin@yandex.ru";
 
     @Value("${ADMIN_MAIL}")
     private String adminEmail;

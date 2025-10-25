@@ -1,0 +1,32 @@
+name: autoluxe
+services:
+  autoluxe:
+    image: "autoluxe"
+    container_name: "autoluxe"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/autoluxe
+  postgres:
+    image: "postgres:16"
+    container_name: "postgres"
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=bestuser
+    volumes:
+      - ./postgresql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - db:/var/lib/postgresql/data_autolux
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready", "-d", "autoluxe" ]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 80s
+volumes:
+  db:
+    driver: local
