@@ -4,7 +4,7 @@ spring:
     allow-circular-references: true
   datasource:
     url: jdbc:postgresql://localhost:5432/autoluxe
-    username: postgres
+    username: zorro
     password: bestuser
     driver-class-name: org.postgresql.Driver
   jpa:
@@ -52,4 +52,4 @@ JWT_REFRESH_COOKIE_NAME: refresh_token
 
 ADMIN_MAIL: openvin@yandex.ru
 
-BASIC_URL: http://194.87.248.209
+BASIC_URL: http://openvin.ru
