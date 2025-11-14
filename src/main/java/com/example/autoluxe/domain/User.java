@@ -60,6 +60,10 @@ public class User implements UserDetails, Serializable {
     @OneToMany(mappedBy = "user",orphanRemoval = true,cascade = CascadeType.ALL)
     private List<Token> tokenList;
 
+    @ToString.Exclude
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<PasswordResetToken> passwordResetTokenList;
+
     private Boolean active=false;
 
 

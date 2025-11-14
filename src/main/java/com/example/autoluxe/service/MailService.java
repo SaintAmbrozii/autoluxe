@@ -26,10 +26,13 @@ public class MailService {
     private static final String TEMPLATE_NAME = "emailTemplate";
     private static final String TEMPLATE_ZVONOK = "zvonok";
     private static final String TEMPLATE_PASS = "changePassword";
+    private static final String TEMPLATE_BUY_ACCOUNT = "buyEpc";
     private static final String SPRING_LOGO_IMAGE = "templates/images/spring.png";
     private static final String PNG_MIME = "image/png";
     private static final String MAIL_SUBJECT = "Registration Confirmation";
+    private static final String CHANGE_PASS = "Смена пароля";
     private static final String MAIL_CONTACT_FORM = "User get contact";
+    private static final String MAIL_NOTIFICATION = "Покупка подписки EPC";
     private static final String MAIL_FROM = "openvin@yandex.ru";
 
     @Value("${ADMIN_MAIL}")
@@ -50,7 +53,7 @@ public class MailService {
         final MimeMessageHelper email = new MimeMessageHelper(mimeMessage, false, "UTF-8");
 
         email.setTo(user.getEmail());
-        email.setSubject(MAIL_SUBJECT);
+        email.setSubject(CHANGE_PASS);
         email.setFrom(MAIL_FROM);
 
         final Context ctx = new Context(LocaleContextHolder.getLocale());
@@ -108,6 +111,31 @@ public class MailService {
 
         mailSender.send(mimeMessage);
     }
+
+
+    public void sendEPCAccount(MailType type, User user, String password, String login, String uri) throws MessagingException {
+
+        final MimeMessage mimeMessage = this.mailSender.createMimeMessage();
+        final MimeMessageHelper email = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+
+        email.setTo(user.getEmail());
+        email.setSubject(MAIL_NOTIFICATION);
+        email.setFrom(MAIL_FROM);
+
+        final Context ctx = new Context(LocaleContextHolder.getLocale());
+        ctx.setVariable("password", password);
+        ctx.setVariable("login", login);
+        ctx.setVariable("uri",uri);
+
+        final String htmlContent = this.templateEngine.process(TEMPLATE_BUY_ACCOUNT, ctx);
+
+        email.setText(htmlContent, true);
+
+
+        mailSender.send(mimeMessage);
+    }
+
+
 
 
 

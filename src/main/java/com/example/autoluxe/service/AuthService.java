@@ -232,10 +232,12 @@ public class AuthService {
     public ResponseEntity<String> changePassword(Model model,String token) {
 
         String result = passwordResetTokenService.validatePasswordResetToken(token);
+        System.out.println(result);
         if (result !=null) {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setLocation(URI.create(basicUrl + "/api/auth/savePassword"));
             model.addAttribute("token",token);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setLocation(URI.create(basicUrl + "/savePassword"));
+
 
            return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
         }

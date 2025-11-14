@@ -26,6 +26,8 @@ public class ResetPasswordListener implements ApplicationListener<ResetPasswordE
     @Override
     public void onApplicationEvent(ResetPasswordEvent event) {
 
+        confirmRegistration(event);
+
     }
 
     private void confirmRegistration(ResetPasswordEvent event) {

@@ -40,9 +40,7 @@ public class PasswordResetTokenService {
         Optional<PasswordResetToken> passwordResetToken = passwordResetRepo.findByToken(token);
 
         PasswordResetToken passToken = passwordResetToken.get();
-        return !isTokenFound(passToken) ? "invalidToken"
-                : isTokenExpired(passToken) ? "expired"
-                : null;
+        return passToken.getToken();
     }
 
     private boolean isTokenFound(PasswordResetToken passToken) {

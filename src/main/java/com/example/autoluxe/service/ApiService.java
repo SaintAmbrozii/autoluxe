@@ -2,6 +2,8 @@ package com.example.autoluxe.service;
 
 import com.example.autoluxe.domain.User;
 import com.example.autoluxe.domain.UserAccount;
+import com.example.autoluxe.events.BuyEpcEventListener;
+import com.example.autoluxe.events.ByAccountEvent;
 import com.example.autoluxe.exception.ApiClientException;
 import com.example.autoluxe.exception.NotFoundException;
 import com.example.autoluxe.payload.confirmbuy.ConfirmBuyRequest;
@@ -12,15 +14,11 @@ import com.example.autoluxe.payload.getusertoken.GetUserTokenRequest;
 import com.example.autoluxe.payload.getusertoken.GetUserTokenResponse;
 import com.example.autoluxe.repo.AccountRepo;
 import com.example.autoluxe.repo.UserRepo;
-import com.example.autoluxe.utils.DateUtils;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,12 +28,15 @@ public class ApiService {
     private final UserRepo userRepo;
     private final AccountRepo accountRepo;
     private final AccountService accountService;
+    private final BuyEpcEventListener buyEpcEventListener;
 
 
-    public ApiService(UserRepo userRepo, AccountRepo accountRepo, AccountService accountService) {
+    public ApiService(UserRepo userRepo, AccountRepo accountRepo,
+                      AccountService accountService, BuyEpcEventListener buyEpcEventListener) {
         this.userRepo = userRepo;
         this.accountRepo = accountRepo;
         this.accountService = accountService;
+        this.buyEpcEventListener = buyEpcEventListener;
     }
 
     private static final String EPIC_URI = "https://epcinfo.ru/api/v2/";
@@ -160,10 +161,18 @@ public class ApiService {
             account.setLogin(a.getLogin());
             account.setPass(a.getPass());
             account.setRFCExpires(a.getExpires());
+
+            User user = userRepo.findById(account.getUserId()).orElseThrow();
+
+            buyEpcEventListener.onApplicationEvent(new ByAccountEvent(user,a.getLogin(),a.getPass()));
+
            return account;
         }).collect(Collectors.toList());
 
+
+
         accountService.accountSaveList(toEntity);
+
 
     }
 

@@ -2,5 +2,5 @@ package com.example.autoluxe.domain;
 
 public enum MailType {
 
-    REGISTRATION, ZAYAVKA, ZVONOK, CHANGE_PASSWORD;
+    REGISTRATION, ZAYAVKA, ZVONOK, CHANGE_PASSWORD,BUY_EPC;
 }

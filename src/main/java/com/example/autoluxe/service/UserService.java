@@ -7,6 +7,7 @@ import com.example.autoluxe.domain.UserAccount;
 import com.example.autoluxe.dto.UserAccountDto;
 import com.example.autoluxe.dto.UserDto;
 import com.example.autoluxe.dto.UserProfileDto;
+import com.example.autoluxe.events.BuyEpcEventListener;
 import com.example.autoluxe.events.BuyEpcTokenEvent;
 import com.example.autoluxe.events.BuyEpcTokenEventListener;
 import com.example.autoluxe.events.GetUserAccountsListener;
@@ -28,8 +29,6 @@ import com.example.autoluxe.payload.getusertoken.GetUserTokenResponse;
 import com.example.autoluxe.payload.hideuseracc.HideAccRequest;
 import com.example.autoluxe.repo.AccountRepo;
 import com.example.autoluxe.repo.UserRepo;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -39,11 +38,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -64,13 +61,14 @@ public class UserService {
     private final BuyEpcTokenEventListener buyEpcTokenEventListener;
     private final AccountRepo accountRepo;
     private final CalculationService calculationService;
+    private final BuyEpcEventListener buyEpcEventListener;
 
 
     public UserService(UserRepo userRepo, PasswordEncoder encoder,
                        AccountService accountService,
                        GetUserAccountsListener getUserAccountsListener,
                        PaymentService paymentService, BuyEpcTokenEventListener buyEpcTokenEventListener,
-                       AccountRepo accountRepo, CalculationService calculationService) {
+                       AccountRepo accountRepo, CalculationService calculationService, BuyEpcEventListener buyEpcEventListener) {
         this.userRepo = userRepo;
         this.encoder = encoder;
         this.accountService = accountService;
@@ -79,6 +77,7 @@ public class UserService {
         this.buyEpcTokenEventListener = buyEpcTokenEventListener;
         this.accountRepo = accountRepo;
         this.calculationService = calculationService;
+        this.buyEpcEventListener = buyEpcEventListener;
     }
 
 
